@@ -3,10 +3,12 @@ const router = express.Router();
 const app = express();
 require('dotenv').config()
 
+app.use(express.json());
+
 const mongoose = require('mongoose');
 
 // Replace <username>, <password>, and <dbname> with your actual credentials
-const dbURL = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/?retryWrites=true&w=majority&appName=${process.env.DB_NAME}`
+const dbURL = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/?retryWrites=true&w=majority&appName=${process.env.APP_NAME}`
 
 mongoose
   .connect(dbURL)
@@ -22,7 +24,9 @@ mongoose
 
 // Middleware and routes will be added here
 const songRouter = require('./routes/song.router');
+const authRouter = require('./routes/auth.router');
 
+app.use('/auth', authRouter);
 app.use('/songs', songRouter);
 
 app.use((req, res) => {

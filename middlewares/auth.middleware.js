@@ -1,15 +1,16 @@
-function authenticate(req, res, next) {
-    // Implement your authentication logic here
-  
-    // If authentication fails
-    //if (!authenticated) {
-      //return res.status(401).json({ error: 'Unauthorized' });
-    //}
-  
-    // If authentication succeeds, call next() to proceed to the next middleware or route handler
+const jwt = require("jsonwebtoken");
+
+function verifyToken(req, res, next) {
+  const token = req.header("Authorization");
+
+  if (!token) return res.status(401).json({ error: "Access denied" });
+  try {
+    const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
+    req.userId = decoded.userId;
     next();
+  } catch (error) {
+    res.status(401).json({ error: "Invalid token" });
   }
-  
-  module.exports = {
-    authenticate,
-  };
+}
+
+module.exports = verifyToken;
