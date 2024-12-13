@@ -7,7 +7,6 @@ app.use(express.json());
 
 const mongoose = require('mongoose');
 
-// Replace <username>, <password>, and <dbname> with your actual credentials
 const dbURL = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/?retryWrites=true&w=majority&appName=${process.env.APP_NAME}`
 
 mongoose
@@ -22,7 +21,6 @@ mongoose
     console.error('Could not connect to MongoDB:', err);
   });
 
-// Middleware and routes will be added here
 const songRouter = require('./routes/song.router');
 const authRouter = require('./routes/auth.router');
 
