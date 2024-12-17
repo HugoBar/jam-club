@@ -7,7 +7,7 @@ class SongController {
     const song = new Song({ title, artist });
 
     await song.save();
-    res.status(201).json({ message: "User registered successfully" });
+    res.status(201).json({ message: "Song registered successfully" });
   }
 
   static async getAllSongs(req, res) {
