@@ -1,16 +1,24 @@
+const Song = require("../models/song.model");
+
 class SongController {
-    static getAllSongs(req, res) {
-      // Fetch songs data from your database or any other source
-      const songs = [
-        // Sample song data
-        { name: 'John Doe', email: 'john@example.com' },
-        { name: 'Jane Smith', email: 'jane@example.com' },
-      ];
-  
-      res.json({ songs });
-    }
-  
-    // Add more methods for handling song-related functionality
+  static async addSong(req, res) {
+    const { title, artist } = req.body;
+
+    const song = new Song({ title, artist });
+
+    await song.save();
+    res.status(201).json({ message: "User registered successfully" });
   }
-  
-  module.exports = SongController;
+
+  static async getAllSongs(req, res) {
+    try {
+      const songs = await Song.find();
+      res.status(200).json(songs);
+    } catch (error) {
+      console.error("Error fetching songs:", error);
+      res.status(500).json({ message: "Server error. Could not fetch songs." });
+    }
+  }
+}
+
+module.exports = SongController;

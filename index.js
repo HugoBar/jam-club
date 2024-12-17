@@ -12,7 +12,7 @@ const songRouter = require('./routes/song.router')
 const authRouter = require('./routes/auth.router')
 
 app.use('/auth', authRouter)
-app.use('/songs', songRouter)
+app.use('/song', songRouter)
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found' })
