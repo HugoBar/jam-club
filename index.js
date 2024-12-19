@@ -8,11 +8,13 @@ app.use(express.json())
 const connectDB = require('./database/database')
 connectDB();
 
-const songRouter = require('./routes/song.router')
 const authRouter = require('./routes/auth.router')
+const songRouter = require('./routes/song.router')
+const recommendationRouter = require('./routes/recommendation.router')
 
 app.use('/auth', authRouter)
 app.use('/song', songRouter)
+app.use('/recommendation', recommendationRouter)
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found' })
