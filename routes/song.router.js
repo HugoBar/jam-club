@@ -5,6 +5,7 @@ const verifyToken = require('../middlewares/auth.middleware');
 
 // Handle the /songs endpoint
 router.post('/', verifyToken, SongController.addSong);
+router.get('/', verifyToken, SongController.getSong);
 
 router.get('/all', verifyToken, SongController.getAllSongs);
 
