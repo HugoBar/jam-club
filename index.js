@@ -11,10 +11,12 @@ connectDB();
 const authRouter = require('./routes/auth.router')
 const songRouter = require('./routes/song.router')
 const recommendationRouter = require('./routes/recommendation.router')
+const groupRouter = require('./routes/group.router')
 
 app.use('/auth', authRouter)
 app.use('/song', songRouter)
 app.use('/recommendation', recommendationRouter)
+app.use('/group', groupRouter)
 
 app.use((req, res) => {
   res.status(404).json({ error: 'Endpoint not found' })
