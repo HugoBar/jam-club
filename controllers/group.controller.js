@@ -1,5 +1,6 @@
 const Group = require("../models/group.model");
 const Recommendation = require("../models/recommendation.model");
+const User = require("../models/user.model");
 
 class GroupController {
   // Static method to handle the creation of a new group
@@ -33,6 +34,22 @@ class GroupController {
         console.log("Group not found");
         return;
       }
+
+    // Iterate over each new member and update the user's groups
+    for (const memberId of newMembers) {
+      console.log(memberId);
+      const user = await User.findByIdAndUpdate(
+        memberId,
+        { $addToSet: { groups: { $each: [groupId] } } },
+        { new: true }
+      );
+
+      console.log(user);
+      if (!user) {
+        console.log("User not found");
+        return;
+      }
+    }
 
       // Respond with a success message
       res
