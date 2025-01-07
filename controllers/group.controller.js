@@ -2,24 +2,24 @@ const Group = require("../models/group.model");
 const Recommendation = require("../models/recommendation.model");
 
 class GroupController {
+  // Static method to handle the creation of a new group
   static async addGroup(req, res) {
-    // Creating a new instance of the Group model with the body params
     const { name, members } = req.body;
+
     const group = new Group({ name, members });
 
-    // Saving the group to the database
     await group.save();
 
-    // Sending a success response with a status code of 201 and a success message
+    // Respond with a success message and a 201 status code
     res.status(201).json({ message: "Group created successfully" });
   }
 
+  // Static method to handle adding members to an existing group
   static async addMembers(req, res) {
     try {
       const groupId = req.params.id;
       const { newMembers } = req.body;
 
-      // Find the group by ID and update its members
       const updatedGroup = await Group.findByIdAndUpdate(
         groupId,
         {
@@ -28,24 +28,30 @@ class GroupController {
         { new: true } // Return the updated document
       );
 
+      // If no group was found, log the error and return without further action
       if (!updatedGroup) {
         console.log("Group not found");
         return;
       }
 
-      res.status(201).json({ message: "Members added successfully", updatedGroup });
+      // Respond with a success message
+      res
+        .status(201)
+        .json({ message: "Members added successfully", updatedGroup });
     } catch (error) {
+      // Log and handle any errors that occur during the process
       console.error("Error updating group members:", error);
     }
   }
 
-  // This method handles the request to get a group by its ID, along with recommendations for today.
+  // Static method to fetch a group by its ID
   static async getGroupById(req, res) {
     try {
       const groupId = req.params.id;
+
       const group = await Group.findById(groupId);
 
-      // If no group is found, return a 404 error with a message
+      // If the group is not found, return a 404 error with an appropriate message
       if (!group) {
         return res.status(404).json({ message: "Group not found" });
       }
@@ -55,16 +61,14 @@ class GroupController {
         group.members
       );
 
-      // Convert the group document (from Mongoose) to a plain JavaScript object
+      // Attach the recommendations to the group data
       const groupData = group.toObject();
-
-      // Ensure the recommendations are included in the final response
       groupData.recommendations = recommendations;
 
-      // Respond with the group data, including the recommendations for today
+      // Respond with the group data, including today's recommendations
       res.status(200).json(groupData);
     } catch (error) {
-      // Catch any errors that occur during the process and return a 500 error
+      // Catch and handle any errors during the process and respond with a 500 status
       console.error("Error fetching group:", error);
       res.status(500).json({ message: "Server error. Could not fetch group." });
     }

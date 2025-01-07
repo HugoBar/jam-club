@@ -1,13 +1,15 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const GroupController = require('../controllers/group.controller');
-const verifyToken = require('../middlewares/auth.middleware');
+const GroupController = require("../controllers/group.controller");
+const verifyToken = require("../middlewares/auth.middleware");
 
-// Handle the /group endpoint
-router.post('/', verifyToken, GroupController.addGroup);
-router.get('/:id', verifyToken, GroupController.getGroupById);
-router.post('/:id/members', verifyToken, GroupController.addMembers);
+// Add a new group
+router.post("/", verifyToken, GroupController.addGroup);
 
-// Add more routes for the /group endpoint as needed
+// Get a group by its ID
+router.get("/:id", verifyToken, GroupController.getGroupById);
+
+// Add members to a group
+router.post("/:id/members", verifyToken, GroupController.addMembers);
 
 module.exports = router;

@@ -1,14 +1,15 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const RecommendationController = require('../controllers/recommendation.controller');
-const verifyToken = require('../middlewares/auth.middleware');
+const RecommendationController = require("../controllers/recommendation.controller");
+const verifyToken = require("../middlewares/auth.middleware");
 
-// Handle the /recommendation endpoint
-router.post('/', verifyToken, RecommendationController.addRecommendation);
-router.get('/', verifyToken, RecommendationController.getRecommendation);
+// Add a new recommendation
+router.post("/", verifyToken, RecommendationController.addRecommendation);
 
-router.get('/all', verifyToken, RecommendationController.getAllRecommendations);
+// Get a user's recommendation
+router.get("/", verifyToken, RecommendationController.getRecommendation);
 
-// Add more routes for the /recommendations endpoint as needed
+// Get all recommendations
+router.get("/all", verifyToken, RecommendationController.getAllRecommendations);
 
 module.exports = router;

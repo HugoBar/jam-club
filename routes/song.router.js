@@ -1,14 +1,15 @@
-const express = require('express');
+const express = require("express");
 const router = express.Router();
-const SongController = require('../controllers/song.controller');
-const verifyToken = require('../middlewares/auth.middleware');
+const SongController = require("../controllers/song.controller");
+const verifyToken = require("../middlewares/auth.middleware");
 
-// Handle the /songs endpoint
-router.post('/', verifyToken, SongController.addSong);
-router.get('/', verifyToken, SongController.getSong);
+// Add a new song
+router.post("/", verifyToken, SongController.addSong);
 
-router.get('/all', verifyToken, SongController.getAllSongs);
+// Get a song
+router.get("/", verifyToken, SongController.getSong);
 
-// Add more routes for the /songs endpoint as needed
+// Get all songs
+router.get("/all", verifyToken, SongController.getAllSongs);
 
 module.exports = router;
