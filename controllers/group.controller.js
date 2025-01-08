@@ -7,7 +7,7 @@ class GroupController {
   static async addGroup(req, res) {
     const { name, members } = req.body;
 
-    const group = new Group({ name, members });
+    const group = new Group({ name, members, owner: req.userId });
 
     await group.save();
 
