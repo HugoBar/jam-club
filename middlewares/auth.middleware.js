@@ -6,7 +6,7 @@ function verifyToken(req, res, next) {
   const token = req.header("Authorization");
 
   // If no token is provided, respond with a 401 Unauthorized status
-  if (!token) return res.status(401).json({ error: "Access denied" });
+  if (!token) return res.status(401).send()
 
   try {
     // Verify the token
@@ -19,7 +19,7 @@ function verifyToken(req, res, next) {
     next();
   } catch (error) {
     // If token verification fails, respond with a 401 Unauthorized status
-    res.status(401).json({ error: "Invalid token" });
+    res.status(401).send()
   }
 }
 
