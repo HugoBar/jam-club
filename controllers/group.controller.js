@@ -21,6 +21,17 @@ class GroupController {
     res.status(201).json({ message: "Group created successfully" });
   }
 
+  static async getGroups(req, res) {
+    try {
+      const groups = await Group.find();
+
+      res.status(200).json(groups);
+    } catch (error) {
+      console.error("Error fetching groups:", error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+
   // Static method to fetch a group by its ID
   static async getGroupById(req, res) {
     try {
@@ -105,7 +116,11 @@ class GroupController {
         return res.status(400).json({ message: "Invalid status" });
       }
 
-      const invite = await Invite.findOne({ _id: inviteeId, group: groupId, status: "pending" });
+      const invite = await Invite.findOne({
+        _id: inviteeId,
+        group: groupId,
+        status: "pending",
+      });
       if (!invite) {
         return res.status(404).json({ message: "Invite not found" });
       }
@@ -117,36 +132,6 @@ class GroupController {
     } catch (error) {
       console.error("Error updating invite status:", error);
       res.status(500).json({ message: "Internal Server Error" });
-    }
-  }
-
-  // Static method to fetch a group by its ID
-  static async getGroupById(req, res) {
-    try {
-      const groupId = req.params.id;
-
-      const group = await Group.findById(groupId);
-
-      // If the group is not found, return a 404 error with an appropriate message
-      if (!group) {
-        return res.status(404).json({ message: "Group not found" });
-      }
-
-      // Fetch today's recommendations for all members of the group
-      const recommendations = await Recommendation.findTodayByUsers(
-        group.members
-      );
-
-      // Attach the recommendations to the group data
-      const groupData = group.toObject();
-      groupData.recommendations = recommendations;
-
-      // Respond with the group data, including today's recommendations
-      res.status(200).json(groupData);
-    } catch (error) {
-      // Catch and handle any errors during the process and respond with a 500 status
-      console.error("Error fetching group:", error);
-      res.status(500).json({ message: "Server error. Could not fetch group." });
     }
   }
 }
