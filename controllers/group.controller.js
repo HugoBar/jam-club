@@ -3,7 +3,7 @@ const Recommendation = require("../models/recommendation.model");
 const User = require("../models/user.model");
 const Invite = require("../models/invite.model");
 
-const { isUserOwnerOfGroup } = require("../helpers/group/groupHelpers");
+const { isUserOwnerOfGroup, isMemberOfGroup } = require("../helpers/group/group.helper");
 
 class GroupController {
   // Static method to handle the creation of a new group
@@ -59,6 +59,31 @@ class GroupController {
       }
       // Log and handle any errors that occur during the process
       console.error("Error updating group members:", error);
+    }
+  }
+
+  static async updateInviteStatus(req, res) {
+    try {
+      const { inviteeId, id: groupId } = req.params;
+      const { status } = req.body;
+
+      // Validate status
+      if (!["accepted", "declined", "canceled"].includes(status)) {
+        return res.status(400).json({ message: "Invalid status" });
+      }
+
+      const invite = await Invite.findOne({ _id: inviteeId, group: groupId, status: "pending" });
+      if (!invite) {
+        return res.status(404).json({ message: "Invite not found" });
+      }
+
+      invite.status = status;
+      await invite.save();
+
+      res.status(200).json({ message: "Invite status updated", invite });
+    } catch (error) {
+      console.error("Error updating invite status:", error);
+      res.status(500).json({ message: "Internal Server Error" });
     }
   }
 

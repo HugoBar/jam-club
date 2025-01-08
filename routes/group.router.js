@@ -11,5 +11,5 @@ router.get("/:id", verifyToken, GroupController.getGroupById);
 
 // Add members to a group
 router.post("/:id/invite", verifyToken, GroupController.inviteById);
-
+router.patch("/:id/invite/:inviteeId", verifyToken, GroupController.updateInviteStatus)
 module.exports = router;
