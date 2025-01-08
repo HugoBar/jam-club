@@ -10,6 +10,6 @@ router.post("/", verifyToken, GroupController.addGroup);
 router.get("/:id", verifyToken, GroupController.getGroupById);
 
 // Add members to a group
-router.post("/:id/members", verifyToken, GroupController.addMembers);
+router.post("/:id/invite", verifyToken, GroupController.inviteById);
 
 module.exports = router;

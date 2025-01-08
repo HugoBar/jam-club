@@ -1,6 +1,7 @@
 const Group = require("../models/group.model");
 const Recommendation = require("../models/recommendation.model");
 const User = require("../models/user.model");
+const Invite = require("../models/invite.model");
 
 class GroupController {
   // Static method to handle the creation of a new group
@@ -16,46 +17,39 @@ class GroupController {
   }
 
   // Static method to handle adding members to an existing group
-  static async addMembers(req, res) {
+  static async inviteById(req, res) {
     try {
       const groupId = req.params.id;
-      const { newMembers } = req.body;
+      const group = await Group.findById(groupId);
 
-      const updatedGroup = await Group.findByIdAndUpdate(
-        groupId,
-        {
-          $addToSet: { members: { $each: newMembers } }, // Add new members, avoiding duplicates
-        },
-        { new: true } // Return the updated document
-      );
-
-      // If no group was found, log the error and return without further action
-      if (!updatedGroup) {
-        console.log("Group not found");
-        return;
+      // Check if the group exists
+      if (!group) {
+        return res.status(404).json({ message: "Group not found" });
       }
 
-    // Iterate over each new member and update the user's groups
-    for (const memberId of newMembers) {
-      console.log(memberId);
-      const user = await User.findByIdAndUpdate(
-        memberId,
-        { $addToSet: { groups: { $each: [groupId] } } },
-        { new: true }
-      );
-
-      console.log(user);
-      if (!user) {
-        console.log("User not found");
-        return;
+      // Check if the current user is the owner of the group
+      if (group.owner != req.userId) {
+        return res.status(401).json({ message: "Not group owner" });
       }
-    }
+
+      const { invitee } = req.body;
+
+      // Check if the invitee is already in the group
+      if (group.members.includes(invitee)) {
+        return res.status(400).json({ message: "Member already in group" });
+      }
+
+      const invite = new Invite({ inviter: req.userId, invitee, group: groupId});
+      await invite.save();
 
       // Respond with a success message
-      res
-        .status(201)
-        .json({ message: "Members added successfully", updatedGroup });
+      return res.status(201).json({
+        message: "Invite sent successfully"
+      });
     } catch (error) {
+      if (error.code === 11000) { // Duplicate key error
+        return res.status(400).json({ message: 'Invite already exists for this user and group' });
+      }
       // Log and handle any errors that occur during the process
       console.error("Error updating group members:", error);
     }
