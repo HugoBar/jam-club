@@ -145,11 +145,7 @@ class GroupController {
         { new: true }
       );
 
-      if (!invite) {
-        return res.status(404).json({ message: "Invite not found" });
-      }
-
-      res.status(200).json({ message: "Invite status updated", invite });
+      res.status(200).json({ message: `Invite was ${status}`, invite });
     } catch (error) {
       console.error("Error rejecting the invite:", error);
       res.status(500).json({ message: "Internal Server Error" });

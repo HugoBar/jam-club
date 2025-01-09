@@ -16,6 +16,9 @@ const inviteSchema = new mongoose.Schema(
   }
 );
 
-inviteSchema.index({ invitee: 1, group: 1 }, { unique: true });
+inviteSchema.index(
+  { invitee: 1, group: 1 },
+  { unique: true, partialFilterExpression: { status: "pending" } }
+);
 
 module.exports = mongoose.model("Invite", inviteSchema);
