@@ -62,6 +62,36 @@ class GroupController {
     }
   }
 
+  static async deleteGroup(req, res) {
+    try {
+      const groupId = req.params.id;
+
+      // Check if the current user is the owner of the group
+      const isOwner = await isUserOwnerOfGroup(req.userId, groupId);
+      if (!isOwner) {
+        return res.status(401).json({ message: "Not group owner" });
+      }
+  
+      const group = await Group.findById(groupId)
+
+      const memberIds = group.members;
+  
+      // Remove the group ID from each member's groups field
+      await User.updateMany(
+        { _id: { $in: memberIds } }, // Match all users in the members array
+        { $pull: { groups: groupId } } // Remove the group ID from their groups array
+      );
+  
+      // Delete the group
+      await Group.findByIdAndDelete(groupId);
+
+      res.status(201).json({ message: "Group deleted successfully" });
+    } catch {
+      console.error("Error deleting group:", error);
+      res.status(500).json({ message: "Server error. Could not delete group." });
+    } 
+  }
+
   // Static method to handle adding members to an existing group
   static async inviteById(req, res) {
     try {
