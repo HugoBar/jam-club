@@ -12,6 +12,7 @@ router.get("/all", verifyToken, GroupController.getGroups);
 router.get("/:id", verifyToken, GroupController.getGroupById);
 
 // Add members to a group
+router.get("/:id/invite", verifyToken, GroupController.getGroupInvites);
 router.post("/:id/invite", verifyToken, GroupController.inviteById);
 router.patch("/:id/invite/:inviteId/reject", verifyToken, isValidStatus, GroupController.rejectGroupInvite)
 router.patch("/:id/invite/:inviteId/accept", verifyToken, isValidStatus, GroupController.acceptGroupInvite)

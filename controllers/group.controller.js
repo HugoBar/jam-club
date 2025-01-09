@@ -130,6 +130,19 @@ class GroupController {
     }
   }
 
+  static async getGroupInvites(req, res) {
+    try {
+      const groupId = req.params.id;
+
+      const invites = await Invite.find({ group: groupId });
+
+      res.status(200).json(invites);
+    } catch (error) {
+      console.error("Error fetching group's invites:", error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+
   static async rejectGroupInvite(req, res) {
     try {
       const { inviteeId, id: groupId } = req.params;
