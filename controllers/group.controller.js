@@ -134,6 +134,20 @@ class GroupController {
       res.status(500).json({ message: "Internal Server Error" });
     }
   }
+
+  static async removeFromGroup(req, res) {
+    const groupId = req.params.id;
+    const { userId } = req.body;
+
+    const group = await Group.updateOne(
+      { id: groupId },
+      {
+        $pullAll: {
+          members: [userId],
+        },
+      }
+    );
+  }
 }
 
 module.exports = GroupController;

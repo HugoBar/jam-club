@@ -7,6 +7,7 @@ const verifyToken = require("../middlewares/auth.middleware");
 router.post("/", verifyToken, GroupController.addGroup);
 
 // Get a group by its ID
+router.get("/all", verifyToken, GroupController.getGroups);
 router.get("/:id", verifyToken, GroupController.getGroupById);
 
 // Add members to a group
