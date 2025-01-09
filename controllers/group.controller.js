@@ -131,17 +131,31 @@ class GroupController {
   }
 
   static async removeFromGroup(req, res) {
+    try {
     const groupId = req.params.id;
-    const { userId } = req.body;
+      const { user_id: userId } = req.body;
 
-    const group = await Group.updateOne(
-      { id: groupId },
+      const group = await Group.findByIdAndUpdate(
+        groupId,
       {
-        $pullAll: {
-          members: [userId],
+          $pullAll: { members: [userId] },
         },
-      }
+        { new: true }
     );
+
+      await User.findByIdAndUpdate(
+        userId,
+        {
+          $pullAll: { groups: [groupId] },
+        },
+        { new: true }
+      );
+
+      res.status(200).json({ message: "User removed from group", group });
+    } catch (error) {
+      console.error("Error removing user from group:", error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
   }
 }
 
