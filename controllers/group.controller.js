@@ -89,7 +89,7 @@ class GroupController {
       await invite.save();
 
       // Respond with a success message
-      return res.status(201).json({message: "Invite sent successfully", invite});
+      return res.status(201).json({ message: "Invite sent successfully", invite });
     } catch (error) {
       // Duplicate key error
       if (error.code === 11000) {
@@ -100,48 +100,80 @@ class GroupController {
     }
   }
 
-  static async updateInviteStatus(req, res) {
+  static async rejectGroupInvite(req, res) {
     try {
       const { inviteeId, id: groupId } = req.params;
       const { status } = req.body;
 
-      // Validate status
-      if (!["accepted", "declined", "canceled"].includes(status)) {
-        return res.status(400).json({ message: "Invalid status" });
-      }
+      const invite = await Invite.findOneAndUpdate(
+        {
+          _id: inviteeId,
+          group: groupId,
+          status: "pending",
+        },
+        { status },
+        { new: true }
+      );
 
-      const invite = await Invite.findOne({
-        _id: inviteeId,
-        group: groupId,
-        status: "pending",
-      });
-      
       if (!invite) {
         return res.status(404).json({ message: "Invite not found" });
       }
 
-      invite.status = status;
-      await invite.save();
-
       res.status(200).json({ message: "Invite status updated", invite });
     } catch (error) {
-      console.error("Error updating invite status:", error);
+      console.error("Error rejecting the invite:", error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
+
+  static async acceptGroupInvite(req, res) {
+    try {
+      const { inviteId, id: groupId } = req.params;
+
+      const invite = await Invite.findOneAndUpdate(
+        {
+          _id: inviteId,
+          group: groupId,
+          status: "pending",
+        },
+        { status: "accepted" }
+      );
+
+      if (!invite) {
+        return res.status(404).json({ message: "Invite not found" });
+      }
+
+      const group = await Group.findByIdAndUpdate(
+        groupId,
+        {
+          $addToSet: { members: invite.invitee },
+        },
+        { new: true }
+      );
+
+      await User.findByIdAndUpdate(invite.invitee, {
+        $addToSet: { groups: groupId },
+      });
+
+      res.status(200).json({ message: "User was added to the group", group });
+    } catch (error) {
+      console.error("Error accepting the invite:", error);
       res.status(500).json({ message: "Internal Server Error" });
     }
   }
 
   static async removeFromGroup(req, res) {
     try {
-    const groupId = req.params.id;
+      const groupId = req.params.id;
       const { user_id: userId } = req.body;
 
       const group = await Group.findByIdAndUpdate(
         groupId,
-      {
+        {
           $pullAll: { members: [userId] },
         },
         { new: true }
-    );
+      );
 
       await User.findByIdAndUpdate(
         userId,
