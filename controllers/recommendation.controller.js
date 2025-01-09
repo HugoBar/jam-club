@@ -10,7 +10,7 @@ class RecommendationController {
     await recommendation.save();
 
     // Respond with a success message and a 201 status code (created)
-    res.status(201).json({ message: "Recommendation registered successfully" });
+    res.status(201).json({ message: "Recommendation registered successfully", recommendation });
   }
 
   // Static method to fetch recommendations for the current day

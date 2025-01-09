@@ -18,7 +18,7 @@ class GroupController {
     await group.save();
 
     // Respond with a success message and a 201 status code
-    res.status(201).json({ message: "Group created successfully" });
+    res.status(201).json({ message: "Group created successfully", group });
   }
 
   static async getGroups(req, res) {
@@ -78,9 +78,7 @@ class GroupController {
       // Check if the invitee is already a member of the group
       const isMember = await isMemberOfGroup(invitee, groupId);
       if (isMember) {
-        return res
-          .status(400)
-          .json({ message: "User is already a member of the group" });
+        return res.status(400).json({ message: "User is already a member of the group" });
       }
 
       const invite = new Invite({
@@ -91,15 +89,11 @@ class GroupController {
       await invite.save();
 
       // Respond with a success message
-      return res.status(201).json({
-        message: "Invite sent successfully",
-      });
+      return res.status(201).json({message: "Invite sent successfully", invite});
     } catch (error) {
       // Duplicate key error
       if (error.code === 11000) {
-        return res
-          .status(400)
-          .json({ message: "Invite already exists for this user and group" });
+        return res.status(400).json({ message: "Invite already exists for this user and group" });
       }
       // Log and handle any errors that occur during the process
       console.error("Error updating group members:", error);
@@ -121,6 +115,7 @@ class GroupController {
         group: groupId,
         status: "pending",
       });
+      
       if (!invite) {
         return res.status(404).json({ message: "Invite not found" });
       }
