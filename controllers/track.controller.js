@@ -4,22 +4,12 @@ const { fetchTrackData } = require("../helpers/api/fetchTrackData.helper");
 class TrackController {
   // Static method to handle adding a new track
   static async setDailyTrack(req, res) {
-    try {
       const { track_id } = req.body;
 
-      const { name, artists, external_urls } = await fetchTrackData(track_id, req.spotifyToken);
-
-      const artistsNames = artists.map(a => a.name) 
-  
-      const track = new Track({ name, artists: artistsNames, external_urls })
-      await track.save()
+    const track = new Track({ spotify_id: track_id });
+    await track.save();
   
       res.status(201).json({ message: "Track created successfully", track });
-    } catch (error) {
-      console.error("Error in set daily track:", error);
-
-      return res.status(500).json({ message: "An error occurred while processing your request." });   
-    }
   }
 
   // Static method to fetch track created today
