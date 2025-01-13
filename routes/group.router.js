@@ -21,6 +21,7 @@ router.patch("/:id/invite/:inviteId/accept", verifyToken, isValidStatus, GroupCo
 router.post("/:id/remove", verifyToken, GroupController.removeFromGroup);
 
 // Member recommendations
+router.post("/:id/recommendation", verifyToken, RecommendationController.addRecommendation);
 router.post("/:id/recommendation", verifyToken, verifySpotifyToken, RecommendationController.addRecommendation);
 
 module.exports = router;
