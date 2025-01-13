@@ -17,18 +17,10 @@ class RecommendationController {
   // Static method to fetch recommendations for the current day
   static async getRecommendation(req, res) {
     try {
-      // Set the start of the day to 00:00:00
-      const startOfDay = new Date();
-      startOfDay.setHours(0, 0, 0, 0);
-
-      // Set the end of the day to 23:59:59.999
-      const endOfDay = new Date();
-      endOfDay.setHours(23, 59, 59, 999);
+      const { id: groupId } = req.params;
 
       // Find recommendations created today, using the start and end of the day as a range
-      const recommendations = await Recommendation.find({
-        createdAt: { $gte: startOfDay, $lt: endOfDay },
-      });
+      const recommendations = await Recommendation.findTodayRecommendations(groupId)
 
       // Respond with the list of recommendations for today
       res.status(200).json(recommendations);
@@ -42,9 +34,11 @@ class RecommendationController {
   }
 
   // Static method to fetch all recommendations
-  static async getAllRecommendations(req, res) {
+  static async getAllRecommendation(req, res) {
     try {
-      const recommendations = await Recommendation.find();
+      const { id: groupId } = req.params;
+
+      const recommendations = await Recommendation.find({ groupId });
 
       // Respond with the list of all recommendations
       res.status(200).json(recommendations);
