@@ -4,12 +4,12 @@ const { fetchTrackData } = require("../helpers/api/fetchTrackData.helper");
 class TrackController {
   // Static method to handle adding a new track
   static async setDailyTrack(req, res) {
-      const { track_id } = req.body;
+    const { track_id } = req.body;
 
     const track = new Track({ spotify_id: track_id });
     await track.save();
-  
-      res.status(201).json({ message: "Track created successfully", track });
+
+    res.status(201).json({ message: "Track created successfully", track });
   }
 
   // Static method to fetch track created today
@@ -24,12 +24,25 @@ class TrackController {
       endOfDay.setHours(23, 59, 59, 999);
 
       // Find track created today, using the start and end of the day as a range
-      const track = await Track.find({
+      const track = await Track.findOne({
         createdAt: { $gte: startOfDay, $lt: endOfDay },
-      });
+      }).lean(); // return plain js object
 
+      const { name, artists, external_urls } = await fetchTrackData(
+        track.spotify_id,
+        req.spotifyToken
+      );
+      const artistsNames = artists.map((a) => a.name);
+
+      const updatedTrack = {
+        ...track,
+        name,
+        artistsNames,
+        external_urls,
+      };
+      
       // Respond with the list of track created today
-      res.status(200).json(track);
+      res.status(200).json(updatedTrack);
     } catch (error) {
       // Log any errors and respond with a 500 error if something goes wrong
       console.error("Error fetching track:", error);
@@ -47,7 +60,9 @@ class TrackController {
     } catch (error) {
       // Log any errors and respond with a 500 error if something goes wrong
       console.error("Error fetching tracks:", error);
-      res.status(500).json({ message: "Server error. Could not fetch tracks." });
+      res
+        .status(500)
+        .json({ message: "Server error. Could not fetch tracks." });
     }
   }
 }
