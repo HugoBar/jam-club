@@ -2,9 +2,9 @@ const mongoose = require("mongoose");
 
 const recommendationSchema = new mongoose.Schema(
   {
-    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User" },
-    title: { type: String, required: true },
-    artist: { type: String, required: true },
+    userId: { type: mongoose.Schema.Types.ObjectId, ref: "User", required: true  },
+    groupId: { type: mongoose.Schema.Types.ObjectId, ref: "Group", required: true },
+    spotifyId: { type: String, required: true },
   },
   {
     timestamps: true,

@@ -3,10 +3,11 @@ const Recommendation = require("../models/recommendation.model");
 class RecommendationController {
   // Static method to handle adding a new recommendation
   static async addRecommendation(req, res) {
-    const { user_id: userId, title, artist } = req.body;
-
-    const recommendation = new Recommendation({ userId, title, artist });
-
+    const { spotify_id: spotifyId } = req.body;
+    const { id: groupId } = req.params;
+    const userId = req.userId
+    
+    const recommendation = new Recommendation({ userId, groupId, spotifyId });
     await recommendation.save();
 
     // Respond with a success message and a 201 status code (created)
