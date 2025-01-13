@@ -14,7 +14,7 @@ connectDB();
 // Import route modules
 const authRouter = require("./routes/auth.router");
 const usersRouter = require("./routes/users.router");
-const songRouter = require("./routes/song.router");
+const trackRouter = require("./routes/track.router");
 const recommendationRouter = require("./routes/recommendation.router");
 const groupRouter = require("./routes/group.router");
 
@@ -25,8 +25,8 @@ app.use("/auth", authRouter);
 // Users
 app.use("/users", usersRouter)
 
-// Daily songs
-app.use("/song", songRouter);
+// Daily tracks
+app.use("/track", trackRouter);
 
 // User Recommendations
 app.use("/recommendation", recommendationRouter);
