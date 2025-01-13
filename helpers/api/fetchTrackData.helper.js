@@ -6,7 +6,6 @@ const fetchTrackData = async (id, token) => {
     const response = await axios.get(url + id, {
       headers: { "Authorization": token },
     });
-    console.log(response)
     return response.data;
   } catch (error) {
     console.error("Error fetching track data:", error.response?.data || error.message);
