@@ -11,12 +11,12 @@ async function verifySpotifyToken(req, res, next) {
       console.log("Spotify token fetched with success");
     } else {
       const response = await requestSpotifyToken();
-      const { access_token, token_type, expires_in } = response;
+      const { access_token: accessToken, token_type: tokenType, expires_in: expiresIn } = response;
 
-      spotifyToken = token_type + " " + access_token;
+      spotifyToken = tokenType + " " + accessToken;
 
       req.spotifyToken = spotifyToken;
-      cache.set("spotifyToken", spotifyToken, expires_in);
+      cache.set("spotifyToken", spotifyToken, expiresIn);
 
       console.log("Spotify token fetched with success");
     }

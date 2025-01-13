@@ -4,9 +4,9 @@ const { fetchTrackData } = require("../helpers/api/fetchTrackData.helper");
 class TrackController {
   // Static method to handle adding a new track
   static async setDailyTrack(req, res) {
-    const { track_id } = req.body;
+    const { track_id: trackId } = req.body;
 
-    const track = new Track({ spotify_id: track_id });
+    const track = new Track({ spotifyId: trackId });
     await track.save();
 
     res.status(201).json({ message: "Track created successfully", track });
@@ -28,8 +28,8 @@ class TrackController {
         createdAt: { $gte: startOfDay, $lt: endOfDay },
       }).lean(); // return plain js object
 
-      const { name, artists, external_urls } = await fetchTrackData(
-        track.spotify_id,
+      const { name, artists, external_urls: externalUrls } = await fetchTrackData(
+        track.spotifyId,
         req.spotifyToken
       );
       const artistsNames = artists.map((a) => a.name);
@@ -38,7 +38,7 @@ class TrackController {
         ...track,
         name,
         artistsNames,
-        external_urls,
+        externalUrls,
       };
       
       // Respond with the list of track created today
