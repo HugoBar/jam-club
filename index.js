@@ -15,7 +15,6 @@ connectDB();
 const authRouter = require("./routes/auth.router");
 const usersRouter = require("./routes/users.router");
 const trackRouter = require("./routes/track.router");
-const recommendationRouter = require("./routes/recommendation.router");
 const groupRouter = require("./routes/group.router");
 
 // Define the routes for the application
@@ -27,9 +26,6 @@ app.use("/users", usersRouter)
 
 // Daily tracks
 app.use("/track", trackRouter);
-
-// User Recommendations
-app.use("/recommendation", recommendationRouter);
 
 // Groups
 app.use("/group", groupRouter);
