@@ -1,7 +1,7 @@
 const axios = require("axios");
 const url = "https://api.spotify.com/v1/tracks/";
 
-const fetchTrackData = async (id, token) => {
+const fetchTrackDetails = async (id, token) => {
   try {
     const response = await axios.get(url + id, {
       headers: { "Authorization": token },

@@ -1,5 +1,5 @@
 const Track = require("../models/track.model");
-const { fetchTrackData } = require("../helpers/api/fetchTrackData.helper");
+const { fetchTrackDetails } = require("../helpers/api/fetchTrackData.helper");
 
 class TrackController {
   // Static method to handle adding a new track
@@ -28,7 +28,7 @@ class TrackController {
         createdAt: { $gte: startOfDay, $lt: endOfDay },
       }).lean(); // return plain js object
 
-      const { name, artists, external_urls: externalUrls } = await fetchTrackData(
+      const { name, artists, external_urls: externalUrls } = await fetchTrackDetails(
         track.spotifyId,
         req.spotifyToken
       );
