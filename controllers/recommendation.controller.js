@@ -36,13 +36,13 @@ class RecommendationController {
       // Fetch track information
       const details = await fetchTracksDetails(ids.join(","), req.spotifyToken);
 
-      const detailedRecommendations = mapTracksDetails(
+      const recommendationsDetails = mapTracksDetails(
         recommendations,
         details
       );
 
       // Respond with the list of recommendations for today
-      res.status(200).json(detailedRecommendations);
+      res.status(200).json(recommendationsDetails);
     } catch (error) {
       // Log any errors and respond with a 500 error if something goes wrong
       console.error("Error fetching recommendations:", error);
@@ -64,13 +64,13 @@ class RecommendationController {
       // Fetch track information
       const details = await fetchTracksDetails(ids.join(","), req.spotifyToken);
 
-      const detailedRecommendations = mapTracksDetails(
+      const recommendationsDetails = mapTracksDetails(
         recommendations,
         details
       );
-      
+
       // Respond with the list of all recommendations
-      res.status(200).json(detailedRecommendations);
+      res.status(200).json(recommendationsDetails);
     } catch (error) {
       // Log any errors and respond with a 500 error if something goes wrong
       console.error("Error fetching recommendations:", error);
