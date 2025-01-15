@@ -1,18 +1,24 @@
 const Recommendation = require("../models/recommendation.model");
 const { fetchTracksDetails } = require("../helpers/api/fetchTrackData.helper");
+const { mapTracksDetails } = require("../helpers/track/mapTrackDetails.helper");
 
 class RecommendationController {
   // Static method to handle adding a new recommendation
   static async addRecommendation(req, res) {
     const { spotify_id: spotifyId } = req.body;
     const { id: groupId } = req.params;
-    const userId = req.userId
-    
+    const userId = req.userId;
+
     const recommendation = new Recommendation({ userId, groupId, spotifyId });
     await recommendation.save();
 
     // Respond with a success message and a 201 status code (created)
-    res.status(201).json({ message: "Recommendation registered successfully", recommendation });
+    res
+      .status(201)
+      .json({
+        message: "Recommendation registered successfully",
+        recommendation,
+      });
   }
 
   // Static method to fetch recommendations for the current day
@@ -28,25 +34,12 @@ class RecommendationController {
       const ids = recommendations.map(({ spotifyId }) => spotifyId);
 
       // Fetch track information
-      const recommendationsDetails = await fetchTracksDetails(
-        ids.join(","),
-        req.spotifyToken
-      );
+      const details = await fetchTracksDetails(ids.join(","), req.spotifyToken);
 
-      // Map fetched details to tracks
-      const detailedRecommendations = recommendations.map((recommendation) => {
-        const details = recommendationsDetails.find(({ id }) => {
-          return id === recommendation.spotifyId;
-        });
-        return details
-          ? {
-              ...recommendation,
-              name: details.name,
-              artists: details.artists.map((artist) => artist.name),
-              externalUrls: details.external_urls,
-            }
-          : recommendation;
-      });
+      const detailedRecommendations = mapTracksDetails(
+        recommendations,
+        details
+      );
 
       // Respond with the list of recommendations for today
       res.status(200).json(detailedRecommendations);
