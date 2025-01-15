@@ -1,5 +1,6 @@
 const Track = require("../models/track.model");
 const { fetchTrackDetails } = require("../helpers/api/fetchTrackData.helper");
+const { mapTrackDetails } = require("../helpers/track/mapTrackDetails.helper");
 
 class TrackController {
   // Static method to handle adding a new track
@@ -15,34 +16,22 @@ class TrackController {
   // Static method to fetch track created today
   static async getDailyTrack(req, res) {
     try {
-      // Set the start of the day to 00:00:00
-      const startOfDay = new Date();
-      startOfDay.setHours(0, 0, 0, 0);
-
-      // Set the end of the day to 23:59:59.999
-      const endOfDay = new Date();
-      endOfDay.setHours(23, 59, 59, 999);
-
       // Find track created today, using the start and end of the day as a range
-      const track = await Track.findOne({
-        createdAt: { $gte: startOfDay, $lt: endOfDay },
-      }).lean(); // return plain js object
+      const track = await Track.findTodayTrack().lean(); // return plain js object
 
-      const { name, artists, external_urls: externalUrls } = await fetchTrackDetails(
+      if (!track) {
+        return res.status(404).json({ message: "Track not found" });
+      }
+
+      const details = await fetchTrackDetails(
         track.spotifyId,
         req.spotifyToken
       );
-      const artistsNames = artists.map((a) => a.name);
 
-      const updatedTrack = {
-        ...track,
-        name,
-        artistsNames,
-        externalUrls,
-      };
+      const trackDetails = mapTrackDetails(track, details);
       
       // Respond with the list of track created today
-      res.status(200).json(updatedTrack);
+      res.status(200).json(trackDetails);
     } catch (error) {
       // Log any errors and respond with a 500 error if something goes wrong
       console.error("Error fetching track:", error);
