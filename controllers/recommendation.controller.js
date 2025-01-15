@@ -57,10 +57,20 @@ class RecommendationController {
     try {
       const { id: groupId } = req.params;
 
-      const recommendations = await Recommendation.find({ groupId });
+      const recommendations = await Recommendation.find({ groupId }).lean();
 
+      const ids = recommendations.map(({ spotifyId }) => spotifyId);
+
+      // Fetch track information
+      const details = await fetchTracksDetails(ids.join(","), req.spotifyToken);
+
+      const detailedRecommendations = mapTracksDetails(
+        recommendations,
+        details
+      );
+      
       // Respond with the list of all recommendations
-      res.status(200).json(recommendations);
+      res.status(200).json(detailedRecommendations);
     } catch (error) {
       // Log any errors and respond with a 500 error if something goes wrong
       console.error("Error fetching recommendations:", error);
