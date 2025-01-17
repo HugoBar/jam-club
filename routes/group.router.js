@@ -6,10 +6,10 @@ const verifyToken = require("../middlewares/auth.middleware");
 const isValidStatus = require("../middlewares/isValidStatus.middleware");
 const verifySpotifyToken = require("../middlewares/authSpotify.middleware");
 
-// Add a new group
+// Create group
 router.post("/", verifyToken, GroupController.addGroup);
 
-// Get a group by its ID
+// Get a group
 router.get("/all", verifyToken, GroupController.getGroups);
 router.get("/:id", verifyToken, GroupController.getGroupById);
 

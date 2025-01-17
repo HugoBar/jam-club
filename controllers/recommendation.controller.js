@@ -3,7 +3,7 @@ const { fetchTracksDetails } = require("../helpers/api/fetchTrackData.helper");
 const { mapTracksDetails } = require("../helpers/track/mapTrackDetails.helper");
 
 class RecommendationController {
-  // Static method to handle adding a new recommendation
+  // Create a new recommendation
   static async addRecommendation(req, res) {
     const { spotify_id: spotifyId } = req.body;
     const { id: groupId } = req.params;
@@ -12,36 +12,30 @@ class RecommendationController {
     const recommendation = new Recommendation({ userId, groupId, spotifyId });
     await recommendation.save();
 
-    // Respond with a success message and a 201 status code (created)
-    res
-      .status(201)
-      .json({
-        message: "Recommendation registered successfully",
-        recommendation,
-      });
+    res.status(201).json({
+      message: "Recommendation registered successfully",
+      recommendation,
+    });
   }
 
-  // Static method to fetch recommendations for the current day
+  // Fetch recommendations for the current day for a group
   static async getRecommendations(req, res) {
     try {
       const { id: groupId } = req.params;
 
-      // Find recommendations created today
+      // Find today's recommendations for the group
       const recommendations = await Recommendation.findTodayRecommendations(
         groupId
       ).lean();
 
+      // Extract the track IDs from the recommendations
       const ids = recommendations.map(({ spotifyId }) => spotifyId);
 
-      // Fetch track information
+      // Fetch detailed track information using Spotify API
       const details = await fetchTracksDetails(ids.join(","), req.spotifyToken);
 
-      const recommendationsDetails = mapTracksDetails(
-        recommendations,
-        details
-      );
+      const recommendationsDetails = mapTracksDetails(recommendations, details);
 
-      // Respond with the list of recommendations for today
       res.status(200).json(recommendationsDetails);
     } catch (error) {
       // Log any errors and respond with a 500 error if something goes wrong
@@ -52,24 +46,22 @@ class RecommendationController {
     }
   }
 
-  // Static method to fetch all recommendations
+  // Fetch all recommendations for a group
   static async getAllRecommendation(req, res) {
     try {
       const { id: groupId } = req.params;
 
+      // Retrieve all recommendations for the specified group
       const recommendations = await Recommendation.find({ groupId }).lean();
 
+      // Extract the Spotify track IDs from the recommendations
       const ids = recommendations.map(({ spotifyId }) => spotifyId);
 
-      // Fetch track information
+      // Fetch detailed track information using Spotify API
       const details = await fetchTracksDetails(ids.join(","), req.spotifyToken);
 
-      const recommendationsDetails = mapTracksDetails(
-        recommendations,
-        details
-      );
+      const recommendationsDetails = mapTracksDetails(recommendations, details);
 
-      // Respond with the list of all recommendations
       res.status(200).json(recommendationsDetails);
     } catch (error) {
       // Log any errors and respond with a 500 error if something goes wrong

@@ -9,20 +9,21 @@ const {
 } = require("../helpers/group/group.helper");
 
 class GroupController {
-  // Static method to handle the creation of a new group
+  // Create a new group
   static async addGroup(req, res) {
     const { name, members } = req.body;
 
+    // Automatically include the creator as a member of the group
     members.push(req.userId);
-    
+
     const group = new Group({ name, members, owner: req.userId });
 
     await group.save();
 
-    // Respond with a success message and a 201 status code
     res.status(201).json({ message: "Group created successfully", group });
   }
 
+  // Fetch all groups
   static async getGroups(req, res) {
     try {
       const groups = await Group.find();
@@ -34,7 +35,7 @@ class GroupController {
     }
   }
 
-  // Static method to fetch a group by its ID
+  // Fetch a group by its ID
   static async getGroupById(req, res) {
     try {
       const groupId = req.params.id;
@@ -46,7 +47,7 @@ class GroupController {
         return res.status(404).json({ message: "Group not found" });
       }
 
-      // Fetch today's recommendations for all members of the group
+      // Fetch today's recommendations for the group
       const recommendations = await Recommendation.findTodayRecommendations(
         groupId
       );
@@ -55,7 +56,6 @@ class GroupController {
       const groupData = group.toObject();
       groupData.recommendations = recommendations;
 
-      // Respond with the group data, including today's recommendations
       res.status(200).json(groupData);
     } catch (error) {
       // Catch and handle any errors during the process and respond with a 500 status
@@ -64,6 +64,7 @@ class GroupController {
     }
   }
 
+  // Delete a group by its ID
   static async deleteGroup(req, res) {
     try {
       const groupId = req.params.id;
@@ -73,28 +74,30 @@ class GroupController {
       if (!isOwner) {
         return res.status(401).json({ message: "Not group owner" });
       }
-  
-      const group = await Group.findById(groupId)
+
+      const group = await Group.findById(groupId);
 
       const memberIds = group.members;
-  
-      // Remove the group ID from each member's groups field
+
+      // Remove the group reference from members' records
       await User.updateMany(
         { _id: { $in: memberIds } }, // Match all users in the members array
         { $pull: { groups: groupId } } // Remove the group ID from their groups array
       );
-  
+
       // Delete the group
       await Group.findByIdAndDelete(groupId);
 
       res.status(201).json({ message: "Group deleted successfully" });
     } catch {
       console.error("Error deleting group:", error);
-      res.status(500).json({ message: "Server error. Could not delete group." });
-    } 
+      res
+        .status(500)
+        .json({ message: "Server error. Could not delete group." });
+    }
   }
 
-  // Static method to handle adding members to an existing group
+  // Invite user to an existing group
   static async inviteById(req, res) {
     try {
       const groupId = req.params.id;
@@ -110,9 +113,12 @@ class GroupController {
       // Check if the invitee is already a member of the group
       const isMember = await isMemberOfGroup(invitee, groupId);
       if (isMember) {
-        return res.status(400).json({ message: "User is already a member of the group" });
+        return res
+          .status(400)
+          .json({ message: "User is already a member of the group" });
       }
 
+      // Create the invite
       const invite = new Invite({
         inviter: req.userId,
         invitee,
@@ -120,18 +126,22 @@ class GroupController {
       });
       await invite.save();
 
-      // Respond with a success message
-      return res.status(201).json({ message: "Invite sent successfully", invite });
+      return res
+        .status(201)
+        .json({ message: "Invite sent successfully", invite });
     } catch (error) {
       // Duplicate key error
       if (error.code === 11000) {
-        return res.status(400).json({ message: "Invite already exists for this user and group" });
+        return res
+          .status(400)
+          .json({ message: "Invite already exists for this user and group" });
       }
       // Log and handle any errors that occur during the process
       console.error("Error updating group members:", error);
     }
   }
 
+  // Fetch all invites for a specific group
   static async getGroupInvites(req, res) {
     try {
       const groupId = req.params.id;
@@ -145,6 +155,7 @@ class GroupController {
     }
   }
 
+  // Reject an invite for a group
   static async rejectGroupInvite(req, res) {
     try {
       const { inviteeId, id: groupId } = req.params;
@@ -167,6 +178,7 @@ class GroupController {
     }
   }
 
+  // Accept an invite to join a group
   static async acceptGroupInvite(req, res) {
     try {
       const { inviteId, id: groupId } = req.params;
@@ -203,6 +215,7 @@ class GroupController {
     }
   }
 
+  // Remove a user from a group
   static async removeFromGroup(req, res) {
     try {
       const groupId = req.params.id;

@@ -2,15 +2,13 @@ const User = require("../models/user.model");
 const Invite = require("../models/invite.model");
 
 class UsersController {
-  // Static method to fetch user by id
+  // Fetch user by id
   static async getUserById(req, res) {
     try {
       const userId = req.params.id;
 
-      // Find user
       const user = await User.findById(userId);
 
-      // Respond with the user
       res.status(200).json(user);
     } catch (error) {
       // Log any errors and respond with a 500 error if something goes wrong
@@ -18,7 +16,7 @@ class UsersController {
       res.status(500).json({ message: "Server error. Could not fetch user." });
     }
   }
-
+  // Fetch all users
   static async getUsers(req, res) {
     try {
       const users = await User.find();
@@ -30,12 +28,13 @@ class UsersController {
     }
   }
 
+  // Update user information
   static async updateUserInfo(req, res) {
     try {
       const userId = req.params.id;
-      const fields = req.body
-      
-      const user = await User.findOneAndUpdate({_id: userId}, fields);
+      const fields = req.body;
+
+      const user = await User.findOneAndUpdate({ _id: userId }, fields);
 
       res.status(200).json(user);
     } catch (error) {
@@ -44,11 +43,12 @@ class UsersController {
     }
   }
 
+  // Fetch invites sent by the user
   static async getUserInvitesSent(req, res) {
     try {
       const userId = req.params.id;
-      
-      const invites = await Invite.find({inviter: userId})
+
+      const invites = await Invite.find({ inviter: userId });
 
       res.status(200).json(invites);
     } catch (error) {
@@ -57,11 +57,12 @@ class UsersController {
     }
   }
 
+  // Fetch invites received by the user
   static async getUserInvitesReceived(req, res) {
     try {
       const userId = req.params.id;
-      
-      const invites = await Invite.find({invitee: userId})
+
+      const invites = await Invite.find({ invitee: userId });
 
       res.status(200).json(invites);
     } catch (error) {
