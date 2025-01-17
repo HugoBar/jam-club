@@ -9,5 +9,8 @@ router.get("/all", verifyToken, UsersController.getUsers);
 router.get("/:id", verifyToken, isUserSelf, UsersController.getUserById);
 router.patch("/:id", verifyToken, isUserSelf, UsersController.updateUserInfo)
 
+// User Invites
+router.get("/:id/invites/sent", verifyToken, isUserSelf, UsersController.getUserInvitesSent);
+router.get("/:id/invites/recieved", verifyToken, isUserSelf, UsersController.getUserInvitesReceived);
 
 module.exports = router;
