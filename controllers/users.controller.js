@@ -28,6 +28,19 @@ class UsersController {
       res.status(500).json({ message: "Internal Server Error" });
     }
   }
+  static async updateUserInfo(req, res) {
+    try {
+      const userId = req.params.id;
+      const fields = req.body
+      
+      const user = await User.findOneAndUpdate({_id: userId}, fields);
+
+      res.status(200).json(user);
+    } catch (error) {
+      console.error("Error updating users:", error);
+      res.status(500).json({ message: "Internal Server Error" });
+    }
+  }
 }
 
 module.exports = UsersController;
