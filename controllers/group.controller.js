@@ -47,8 +47,8 @@ class GroupController {
       }
 
       // Fetch today's recommendations for all members of the group
-      const recommendations = await Recommendation.findTodayByUsers(
-        group.members
+      const recommendations = await Recommendation.findTodayRecommendations(
+        groupId
       );
 
       // Attach the recommendations to the group data
