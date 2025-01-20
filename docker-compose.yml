@@ -1,0 +1,36 @@
+version: '3.8'
+
+services:
+  app:
+    build: .
+    container_name: jam-club
+    command: npm start
+    ports:
+      - "3000:3000" # Exposes port 3000 
+    volumes:
+      - .:/app # Mounts current directory to the container for live code updates
+      - /app/node_modules # Prevents node_modules from being overridden by the volume
+      - /app/node_modules/bcrypt/
+    env_file:
+      - .env.production
+    environment:
+      NODE_ENV: production
+    profiles: 
+      - production 
+  app-dev:
+    build: .
+    container_name: jam-club-dev
+    command: npm run dev
+    ports:
+      - "3001:3000" # Exposes port 3000 
+    volumes:
+      - .:/app # Mounts current directory to the container for live code updates
+      - /app/node_modules # Prevents node_modules from being overridden by the volume
+      - /app/node_modules/bcrypt/
+    env_file:
+      - .env.development
+    environment:
+      NODE_ENV: development
+    profiles: 
+      - dev 
+  

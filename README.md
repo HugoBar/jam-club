@@ -1,2 +1,2 @@
-# project-s
+# jam-club
 Fun personal project 
