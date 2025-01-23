@@ -11,6 +11,20 @@ app.use(express.json());
 const connectDB = require("./database/database");
 connectDB();
 
+app.get('/check-ip', (req, res) => {
+  exec('curl https://checkip.amazonaws.com', (error, stdout, stderr) => {
+    if (error) {
+      res.status(500).send(`Error: ${error.message}`);
+      return;
+    }
+    if (stderr) {
+      res.status(500).send(`Stderr: ${stderr}`);
+      return;
+    }
+    res.send(`Public IP: ${stdout}`);
+  });
+});
+
 // Import route modules
 const authRouter = require("./routes/auth.router");
 const usersRouter = require("./routes/users.router");
