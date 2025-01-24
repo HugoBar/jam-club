@@ -2,9 +2,10 @@ const mongoose = require("mongoose");
 
 // MongoDB connection string
 const dbURL = `mongodb+srv://${process.env.DB_USER}:${process.env.DB_PASSWORD}@${process.env.DB_HOST}/${process.env.APP_NAME}?retryWrites=true&w=majority`;
-
 // Function to connect to the MongoDB database
 const connectDB = async () => {
+  console.log(dbURL)
+
   mongoose
     .connect(dbURL) // Attempt to connect to the database
     .then((result) => {
