@@ -11,7 +11,7 @@ env:
   DB_USER: ${{ secrets.DB_USER }}
   DB_PASSWORD: ${{ secrets.DB_PASSWORD }}
   DB_PORT: ${{ secrets.DB_PORT }}
-  APP_NAME: ${{ env.APP_NAME }}
+  APP_NAME: ${{ vars.APP_NAME }}
 
 jobs:
   deploy:
