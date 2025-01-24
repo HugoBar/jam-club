@@ -9,6 +9,7 @@ services:
         DB_USER: "${DB_USER}"
         DB_PASSWORD: "${DB_PASSWORD}"
         DB_PORT: "${DB_PORT}"
+        APP_NAME: "${APP_NAME}"  
     container_name: jam-club
     command: npm start
     ports:
@@ -24,13 +25,14 @@ services:
     profiles: 
       - production 
   app-dev:
-    build: 
+    build:
       context: .
       args:
         DB_HOST: "${DB_HOST}"
         DB_USER: "${DB_USER}"
         DB_PASSWORD: "${DB_PASSWORD}"
         DB_PORT: "${DB_PORT}"
+        APP_NAME: "${APP_NAME}"  
     container_name: jam-club-dev
     command: npm run dev
     ports:
@@ -45,4 +47,3 @@ services:
       NODE_ENV: development
     profiles: 
       - dev 
-  

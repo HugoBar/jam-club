@@ -7,17 +7,19 @@ WORKDIR /app
 # Install the necessary build tools and Python
 RUN apt-get update && apt-get install -y build-essential python3
 
-# Accept build arguments for secrets
+# Accept build arguments for environment variable
 ARG DB_HOST
 ARG DB_USER
 ARG DB_PASSWORD
 ARG DB_PORT
+ARG APP_NAME
 
-# Set secrets as environment variables within the container
+# Set the build arguments as environment variables inside the container
 ENV DB_HOST=$DB_HOST
 ENV DB_USER=$DB_USER
 ENV DB_PASSWORD=$DB_PASSWORD
 ENV DB_PORT=$DB_PORT
+ENV APP_NAME=$APP_NAME
 
 # Copy package.json and package-lock.json
 COPY package*.json ./
