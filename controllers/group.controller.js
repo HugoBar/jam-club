@@ -11,16 +11,28 @@ const {
 class GroupController {
   // Create a new group
   static async addGroup(req, res) {
-    const { name, members } = req.body;
+    try {
+      const { name, members } = req.body;
 
-    // Automatically include the creator as a member of the group
-    members.push(req.userId);
+      // Automatically include the creator as a member of the group
+      members.push(req.userId);
 
-    const group = new Group({ name, members, owner: req.userId });
+      const group = new Group({ name, members, owner: req.userId });
 
-    await group.save();
+      await group.save();
 
-    res.status(201).json({ message: "Group created successfully", group });
+      res.status(201).json({ message: "Group created successfully", group });
+    } catch (error) {
+      // Log any error and send a failure response
+      console.error("Error creating group:", error);
+
+      // Duplicate key error
+      if (error.code === 11000) {
+        res.status(500).json({ error: "Group name is already taken" });
+      }
+
+      res.status(500).json({ error: "Server Error. Could not create group." });
+    }
   }
 
   // Fetch all groups
