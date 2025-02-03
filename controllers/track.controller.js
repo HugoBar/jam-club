@@ -2,15 +2,28 @@ const Track = require("../models/track.model");
 const { fetchTrackDetails } = require("../helpers/api/fetchTrackData.helper");
 const { mapTrackDetails } = require("../helpers/track/mapTrackDetails.helper");
 
+const { getDailyTrack } = require("../helpers/track/track.helper")
+
 class TrackController {
   // Create a new track
   static async setDailyTrack(req, res) {
-    const { track_id: trackId } = req.body;
+    try {
+      const { track_id: trackId } = req.body;
 
-    const track = new Track({ spotifyId: trackId });
-    await track.save();
+      let track = await getDailyTrack()
+      if (track.length > 0) {
+        return res.status(500).json({ error: "Daily track already exists." });
+      }
 
-    res.status(201).json({ message: "Track created successfully", track });
+      track = new Track({ spotifyId: trackId });
+      await track.save();
+  
+      res.status(201).json({ message: "Track created successfully", track });
+    } catch(error) {
+      // Log any error and send a failure response
+      console.error("Error creating daily track:", error);
+      res.status(500).json({ error: "Server Error. Could not create daily track." });
+    }
   }
 
   // Fetch track created today
