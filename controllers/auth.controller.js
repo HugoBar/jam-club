@@ -18,7 +18,7 @@ class AuthController {
       res.status(201).json({ message: "User registered successfully" });
     } catch (error) {
       // Log any error and send a failure response
-      console.log(error);
+      console.error("Error creating user:", error);
       res.status(500).json({ error: "Registration failed" });
     }
   }

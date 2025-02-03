@@ -9,6 +9,10 @@ class UsersController {
 
       const user = await User.findById(userId);
 
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
       res.status(200).json(user);
     } catch (error) {
       // Log any errors and respond with a 500 error if something goes wrong

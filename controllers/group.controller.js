@@ -31,7 +31,7 @@ class GroupController {
       res.status(200).json(groups);
     } catch (error) {
       console.error("Error fetching groups:", error);
-      res.status(500).json({ message: "Internal Server Error" });
+      res.status(500).json({ message: "Server Error. Could not fetch groups." });
     }
   }
 
@@ -114,7 +114,7 @@ class GroupController {
       const isMember = await isMemberOfGroup(invitee, groupId);
       if (isMember) {
         return res
-          .status(400)
+          .status(500)
           .json({ message: "User is already a member of the group" });
       }
 
@@ -130,14 +130,16 @@ class GroupController {
         .status(201)
         .json({ message: "Invite sent successfully", invite });
     } catch (error) {
+      // Log and handle any errors that occur during the process
+      console.error("Error updating group members:", error);
+
       // Duplicate key error
       if (error.code === 11000) {
         return res
-          .status(400)
-          .json({ message: "Invite already exists for this user and group" });
+          .status(500)
+          .json({ message: "User already has an invite" });
       }
-      // Log and handle any errors that occur during the process
-      console.error("Error updating group members:", error);
+      res.status(500).json({ error: "Server Error. Could not invite user." });
     }
   }
 
@@ -151,7 +153,7 @@ class GroupController {
       res.status(200).json(invites);
     } catch (error) {
       console.error("Error fetching group's invites:", error);
-      res.status(500).json({ message: "Internal Server Error" });
+      res.status(500).json({ message: "Server Error. Could not fetch invites." });
     }
   }
 
@@ -171,10 +173,14 @@ class GroupController {
         { new: true }
       );
 
+      if (!invite) {
+        return res.status(404).json({ message: "Invite not found" });
+      }
+
       res.status(200).json({ message: `Invite was ${status}`, invite });
     } catch (error) {
       console.error("Error rejecting the invite:", error);
-      res.status(500).json({ message: "Internal Server Error" });
+      res.status(500).json({ message: "Server Error. Could not reject invite." });
     }
   }
 
@@ -211,7 +217,7 @@ class GroupController {
       res.status(200).json({ message: "User was added to the group", group });
     } catch (error) {
       console.error("Error accepting the invite:", error);
-      res.status(500).json({ message: "Internal Server Error" });
+      res.status(500).json({ message: "Server Error. Could not accept invite." });
     }
   }
 
@@ -229,6 +235,10 @@ class GroupController {
         { new: true }
       );
 
+      if (!group) {
+        return res.status(404).json({ message: "Group not found" });
+      }
+
       await User.findByIdAndUpdate(
         userId,
         {
@@ -240,7 +250,7 @@ class GroupController {
       res.status(200).json({ message: "User removed from group", group });
     } catch (error) {
       console.error("Error removing user from group:", error);
-      res.status(500).json({ message: "Internal Server Error" });
+      res.status(500).json({ message: "Server Error. Could not remove user from group." });
     }
   }
 }
