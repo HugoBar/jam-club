@@ -11,7 +11,7 @@ const recommendationSchema = new mongoose.Schema(
   }
 );
 
-// Add a custom static method to the schema to find recommendations for today by given user IDs
+// Add a custom static method to the schema to find recommendations for today in given group ID
 recommendationSchema.statics.findTodayRecommendations = function (groupId) {
   const startOfDay = new Date();
   startOfDay.setHours(0, 0, 0, 0);

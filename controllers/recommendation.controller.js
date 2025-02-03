@@ -2,20 +2,35 @@ const Recommendation = require("../models/recommendation.model");
 const { fetchTracksDetails } = require("../helpers/api/fetchTrackData.helper");
 const { mapTracksDetails } = require("../helpers/track/mapTrackDetails.helper");
 
+const { hasRecommendation } = require("../helpers/recommendation/recommendation.helper")
+
 class RecommendationController {
   // Create a new recommendation
   static async addRecommendation(req, res) {
-    const { spotify_id: spotifyId } = req.body;
-    const { id: groupId } = req.params;
-    const userId = req.userId;
+    try {
+      const { spotify_id: spotifyId } = req.body;
+      const { id: groupId } = req.params;
+      const userId = req.userId;
+  
+      let recommendation = await hasRecommendation(userId, groupId);
+      console.log(recommendation)
+      if (recommendation.length > 0) {
+        return res.status(500).json({ error: "User already has a recommendation for this group" });
+      }
 
-    const recommendation = new Recommendation({ userId, groupId, spotifyId });
-    await recommendation.save();
-
-    res.status(201).json({
-      message: "Recommendation registered successfully",
-      recommendation,
-    });
+      recommendation = new Recommendation({ userId, groupId, spotifyId });
+      await recommendation.save();
+  
+      res.status(201).json({
+        message: "Recommendation created successfully",
+        recommendation,
+      });
+    } catch (error) {
+      // Log any error and send a failure response
+      console.error("Error creating recommendation:", error);
+      res.status(500).json({ error: "Server Error. Could not create recommendation." });
+    }
+    
   }
 
   // Fetch recommendations for the current day for a group
