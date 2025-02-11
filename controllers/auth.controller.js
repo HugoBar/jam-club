@@ -56,6 +56,8 @@ class AuthController {
 
       // If authentication is successful, generate a JWT token
       const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
+        expiresIn: 60, // Token expires in 3 hour
+      });
 
       // Set token in HttpOnly cookie
       res.cookie("token", token, {
