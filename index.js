@@ -1,11 +1,16 @@
 const express = require("express");
 const router = express.Router();
 const app = express();
+const corsConfig = require("./config/cors/cors");
 
 require("dotenv").config();
 
 // Middleware to parse JSON request bodies
 app.use(express.json());
+
+// Use CORS configuration
+app.use(corsConfig);
+
 
 // Import and connect to the database
 const connectDB = require("./database/database");
