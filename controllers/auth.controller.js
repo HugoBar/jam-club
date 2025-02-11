@@ -19,6 +19,18 @@ class AuthController {
     } catch (error) {
       // Log any error and send a failure response
       console.error("Error creating user:", error);
+
+      // Duplicate key error
+      if (error.code === 11000) {
+        const keys = Object.keys(error.keyValue);
+        if (keys.includes("username")) {
+          return res.status(500).json({ error: "Username is already taken" });
+        }
+        else if (keys.includes("nickname")) {
+          return res.status(500).json({ error: "Nickname is already taken" });
+        }
+      }
+
       res.status(500).json({ error: "Registration failed" });
     }
   }
