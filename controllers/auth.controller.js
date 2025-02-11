@@ -56,11 +56,16 @@ class AuthController {
 
       // If authentication is successful, generate a JWT token
       const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
-        expiresIn: "3h", // Token expires in 3 hour
+
+      // Set token in HttpOnly cookie
+      res.cookie("token", token, {
+        httpOnly: true,
+        secure: process.env.NODE_ENV === "production", // Set true in production
+        sameSite: "Strict",
       });
 
       // Respond with the generated token
-      res.status(200).json({ token });
+      res.status(200).json({ message: "Login successful" });
     } catch (error) {
       // Send a failure response if login fails
       res.status(500).json({ error: "Login failed" });

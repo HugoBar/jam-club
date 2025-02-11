@@ -2,8 +2,8 @@ const jwt = require("jsonwebtoken");
 
 // Function to verify the JWT token
 function verifyToken(req, res, next) {
-  // Retrieve the token from the "Authorization" header
-  const token = req.header("Authorization");
+  // Retrieve the token from the cookies
+  const token = req.cookies.token;
 
   // If no token is provided, respond with a 401 Unauthorized status
   if (!token) return res.status(401).send()

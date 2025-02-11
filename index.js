@@ -2,6 +2,7 @@ const express = require("express");
 const router = express.Router();
 const app = express();
 const corsConfig = require("./config/cors/cors");
+const cookieParser = require("cookie-parser");
 
 require("dotenv").config();
 
@@ -11,6 +12,8 @@ app.use(express.json());
 // Use CORS configuration
 app.use(corsConfig);
 
+// Enable reading cookies
+app.use(cookieParser()); 
 
 // Import and connect to the database
 const connectDB = require("./database/database");
