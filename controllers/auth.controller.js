@@ -54,23 +54,46 @@ class AuthController {
         return res.status(401).json({ error: "Authentication failed" });
       }
 
-      // If authentication is successful, generate a JWT token
-      const token = jwt.sign({ userId: user._id }, process.env.JWT_SECRET_KEY, {
-        expiresIn: 60, // Token expires in 3 hour
+      const accessToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET_KEY, {
+        expiresIn: "15m", // Access token expires in 15 minutes
       });
 
-      // Set token in HttpOnly cookie
-      res.cookie("token", token, {
+      const refreshToken = jwt.sign({ userId: user.id }, process.env.JWT_REFRESH_SECRET_KEY, {
+        expiresIn: "7d", // Refresh token expires in 7 days
+      });
+
+
+      // Set refresh token in HttpOnly cookie
+      res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
-        secure: process.env.NODE_ENV === "production", // Set true in production
+        secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
       });
 
       // Respond with the generated token
-      res.status(200).json({ message: "Login successful" });
+      res.status(200).json({ accessToken, userId: user.id , message: "Login successful" });
     } catch (error) {
       // Send a failure response if login fails
       res.status(500).json({ error: "Login failed" });
+    }
+  }
+
+  static async refreshToken(req, res) {
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({ error: "Refresh token not found" });
+    }
+
+    try {
+      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET_KEY);
+      const accessToken = jwt.sign({ userId: decoded.userId }, process.env.JWT_SECRET_KEY, {
+        expiresIn: "15m",
+      });
+
+      res.status(200).json({ accessToken });
+    } catch (error) {
+      res.status(403).json({ error: "Invalid refresh token" });
     }
   }
 }
