@@ -60,6 +60,33 @@ class RecommendationController {
         .json({ message: "Server error. Could not fetch recommendations." });
     }
   }
+  static async getRecommendationByUser(req, res) {
+    try {
+      const { id: groupId } = req.params;
+      const userId = req.userId;
+
+      // Find today's recommendations for the group
+      const recommendations = await Recommendation.findTodayRecommendationsByUser(
+        groupId, userId
+      ).lean();
+
+      // Extract the track IDs from the recommendations
+      const ids = recommendations.map(({ spotifyId }) => spotifyId);
+
+      // Fetch detailed track information using Spotify API
+      const details = await fetchTracksDetails(ids.join(","), req.spotifyToken);
+
+      const recommendationsDetails = mapTracksDetails(recommendations, details);
+
+      res.status(200).json(recommendationsDetails[0]);
+    } catch (error) {
+      // Log any errors and respond with a 500 error if something goes wrong
+      console.error("Error fetching recommendations:", error);
+      res
+        .status(500)
+        .json({ message: "Server error. Could not fetch recommendations." });
+    }
+  }
 
   // Fetch all recommendations for a group
   static async getAllRecommendation(req, res) {
