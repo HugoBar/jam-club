@@ -1,25 +1,49 @@
 const jwt = require("jsonwebtoken");
 
 // Function to verify the JWT token
-function verifyToken(req, res, next) {
-  // Retrieve the token from the cookies
-  const token = req.cookies.token;
+async function verifyToken(req, res, next) {
+  // Retrieve the token from the Authorization header
+  const authHeader = req.headers.authorization;
+  let token;
 
+  if (authHeader) {
+    token = authHeader.split(' ')[1];
+  }
+  
   // If no token is provided, respond with a 401 Unauthorized status
-  if (!token) return res.status(401).send()
+  if (!token) {
+    return res.status(401).json({ error: "Access token not provided" });
+  }
 
   try {
-    // Verify the token
+    // Verify the access token
     const decoded = jwt.verify(token, process.env.JWT_SECRET_KEY);
-
-    // Attach the userId to the request object
     req.userId = decoded.userId;
-
-    // Proceed to the next middleware or route handler
-    next();
+    return next();
   } catch (error) {
-    // If token verification fails, respond with a 401 Unauthorized status
-    res.status(401).send()
+    // If access token verification fails, check the refresh token
+    const refreshToken = req.cookies.refreshToken;
+
+    if (!refreshToken) {
+      return res.status(401).json({ error: "Refresh token not provided" });
+    }
+
+    try {
+      // Verify the refresh token
+      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET_KEY);
+      const newAccessToken = jwt.sign({ userId: decoded.userId }, process.env.JWT_SECRET_KEY, {
+        expiresIn: "15m",
+      });
+
+      // Set the new access token in the response header
+      res.setHeader('new-access-token', `Bearer ${newAccessToken}`);
+
+      // Attach the userId to the request object
+      req.userId = decoded.userId;
+      return next();
+    } catch (error) {
+      return res.status(403).json({ error: "Invalid refresh token" });
+    }
   }
 }
 
