@@ -7,7 +7,7 @@ const getDailyTrack = async () => {
   const endOfDay = new Date();
   endOfDay.setHours(23, 59, 59, 999);
 
-  return Track.find({
+  return Track.findOne({
     createdAt: { $gte: startOfDay, $lte: endOfDay },
   });
 };

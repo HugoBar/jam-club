@@ -8,10 +8,10 @@ class TrackController {
   // Create a new track
   static async setDailyTrack(req, res) {
     try {
-      const { track_id: trackId } = req.body;
+      const { trackId } = req.body;
 
       let track = await getDailyTrack()
-      if (track.length > 0) {
+      if (track) {
         return res.status(500).json({ error: "Daily track already exists." });
       }
 
@@ -30,7 +30,7 @@ class TrackController {
   static async getDailyTrack(req, res) {
     try {
       // Find track created today
-      const track = await Track.findTodayTrack().lean(); // return plain js object
+      const track = await getDailyTrack(); // return plain js object
 
       if (!track) {
         return res.status(404).json({ message: "Track not found" });

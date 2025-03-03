@@ -8,7 +8,7 @@ class RecommendationController {
   // Create a new recommendation
   static async addRecommendation(req, res) {
     try {
-      const { spotify_id: spotifyId } = req.body;
+      const { spotifyId } = req.body;
       const { id: groupId } = req.params;
       const userId = req.userId;
   
@@ -41,7 +41,7 @@ class RecommendationController {
       // Find today's recommendations for the group
       const recommendations = await Recommendation.findTodayRecommendations(
         groupId
-      ).lean();
+      ).populate("userId").lean();
 
       // Extract the track IDs from the recommendations
       const ids = recommendations.map(({ spotifyId }) => spotifyId);
@@ -60,6 +60,7 @@ class RecommendationController {
         .json({ message: "Server error. Could not fetch recommendations." });
     }
   }
+
   static async getRecommendationByUser(req, res) {
     try {
       const { id: groupId } = req.params;

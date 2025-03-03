@@ -25,4 +25,18 @@ recommendationSchema.statics.findTodayRecommendations = function (groupId) {
   });
 };
 
+recommendationSchema.statics.findTodayRecommendationsByUser = function (groupId, userId) {
+  const startOfDay = new Date();
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date();
+  endOfDay.setHours(23, 59, 59, 999);
+
+  return this.find({
+    groupId: groupId, 
+    userId: userId,
+    createdAt: { $gte: startOfDay, $lte: endOfDay }, 
+  });
+};
+
 module.exports = mongoose.model("Recommendation", recommendationSchema);

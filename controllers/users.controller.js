@@ -66,7 +66,7 @@ class UsersController {
     try {
       const userId = req.params.id;
 
-      const invites = await Invite.find({ invitee: userId });
+      const invites = await Invite.find({ invitee: userId }).populate("group");
 
       res.status(200).json(invites);
     } catch (error) {

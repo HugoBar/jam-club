@@ -8,4 +8,7 @@ router.post("/register", AuthController.register);
 // User login
 router.post("/login", AuthController.login);
 
+// Refresh token
+router.post("/refresh-token", AuthController.refreshToken);
+
 module.exports = router;

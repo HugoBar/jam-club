@@ -12,14 +12,17 @@ class GroupController {
   // Create a new group
   static async addGroup(req, res) {
     try {
-      const { name, members } = req.body;
+      const { name } = req.body;
 
-      // Automatically include the creator as a member of the group
-      members.push(req.userId);
-
-      const group = new Group({ name, members, owner: req.userId });
+      const group = new Group({ name, members: [req.userId], owner: req.userId });
 
       await group.save();
+
+      const user = await User.findByIdAndUpdate(
+        req.userId,
+        { $addToSet: { groups: group._id } },
+        { new: true }
+      );
 
       res.status(201).json({ message: "Group created successfully", group });
     } catch (error) {
@@ -28,8 +31,8 @@ class GroupController {
 
       // Duplicate key error
       if (error.code === 11000) {
-        res.status(500).json({ error: "Group name is already taken" });
-      }
+        return res.status(500).json({ error: "Group name is already taken" });
+      } 
 
       res.status(500).json({ error: "Server Error. Could not create group." });
     }
@@ -47,12 +50,25 @@ class GroupController {
     }
   }
 
+  //Fetch all groups for a specific user
+  static async getUserGroups(req, res) { 
+    // Fetch groups where the user is a member or owner
+    try {
+      const user = await User.findById(req.userId).populate("groups");
+
+      res.status(200).json(user.groups);
+    } catch (error) {
+      console.error("Error fetching user's groups:", error);
+      res.status(500).json({ message: "Server Error. Could not fetch user's groups." });
+    }
+  }
+  
   // Fetch a group by its ID
   static async getGroupById(req, res) {
     try {
       const groupId = req.params.id;
 
-      const group = await Group.findById(groupId);
+      const group = await Group.findById(groupId).populate("members");
 
       // If the group is not found, return a 404 error with an appropriate message
       if (!group) {
@@ -110,7 +126,7 @@ class GroupController {
   }
 
   // Invite user to an existing group
-  static async inviteById(req, res) {
+  static async inviteByUsername(req, res) {
     try {
       const groupId = req.params.id;
 
@@ -120,7 +136,9 @@ class GroupController {
         return res.status(401).json({ message: "Not group owner" });
       }
 
-      const { invitee } = req.body;
+      const { username } = req.body;
+
+      const invitee = await User.findOne({ username: username })
 
       // Check if the invitee is already a member of the group
       const isMember = await isMemberOfGroup(invitee, groupId);
@@ -136,6 +154,8 @@ class GroupController {
         invitee,
         group: groupId,
       });
+      console.log("xalala", invite)
+
       await invite.save();
 
       return res
@@ -172,12 +192,12 @@ class GroupController {
   // Reject an invite for a group
   static async rejectGroupInvite(req, res) {
     try {
-      const { inviteeId, id: groupId } = req.params;
+      const { inviteId, id: groupId } = req.params;
       const { status } = req.body;
 
       const invite = await Invite.findOneAndUpdate(
         {
-          _id: inviteeId,
+          _id: inviteId,
           group: groupId,
           status: "pending",
         },
@@ -237,7 +257,7 @@ class GroupController {
   static async removeFromGroup(req, res) {
     try {
       const groupId = req.params.id;
-      const { user_id: userId } = req.body;
+      const { userId } = req.body;
 
       const group = await Group.findByIdAndUpdate(
         groupId,

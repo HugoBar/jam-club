@@ -4,6 +4,7 @@ const mapTrackDetails = (track, details) => {
     name: details.name,
     artists: details.artists.map((artist) => artist.name),
     externalUrls: details.external_urls,
+    cover: details.album.images
   };
 };
 
