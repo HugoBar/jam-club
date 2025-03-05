@@ -14,7 +14,11 @@ class GroupController {
     try {
       const { name } = req.body;
 
-      const group = new Group({ name, members: [req.userId], owner: req.userId });
+      const group = new Group({
+        name,
+        members: [req.userId],
+        owner: req.userId,
+      });
 
       await group.save();
 
@@ -32,7 +36,7 @@ class GroupController {
       // Duplicate key error
       if (error.code === 11000) {
         return res.status(500).json({ error: "Group name is already taken" });
-      } 
+      }
 
       res.status(500).json({ error: "Server Error. Could not create group." });
     }
@@ -46,12 +50,14 @@ class GroupController {
       res.status(200).json(groups);
     } catch (error) {
       console.error("Error fetching groups:", error);
-      res.status(500).json({ message: "Server Error. Could not fetch groups." });
+      res
+        .status(500)
+        .json({ message: "Server Error. Could not fetch groups." });
     }
   }
 
   //Fetch all groups for a specific user
-  static async getUserGroups(req, res) { 
+  static async getUserGroups(req, res) {
     // Fetch groups where the user is a member or owner
     try {
       const user = await User.findById(req.userId).populate("groups");
@@ -59,10 +65,12 @@ class GroupController {
       res.status(200).json(user.groups);
     } catch (error) {
       console.error("Error fetching user's groups:", error);
-      res.status(500).json({ message: "Server Error. Could not fetch user's groups." });
+      res
+        .status(500)
+        .json({ message: "Server Error. Could not fetch user's groups." });
     }
   }
-  
+
   // Fetch a group by its ID
   static async getGroupById(req, res) {
     try {
@@ -138,7 +146,7 @@ class GroupController {
 
       const { username } = req.body;
 
-      const invitee = await User.findOne({ username: username })
+      const invitee = await User.findOne({ username: username });
 
       // Check if the invitee is already a member of the group
       const isMember = await isMemberOfGroup(invitee, groupId);
@@ -154,8 +162,6 @@ class GroupController {
         invitee,
         group: groupId,
       });
-      console.log("xalala", invite)
-
       await invite.save();
 
       return res
@@ -167,9 +173,7 @@ class GroupController {
 
       // Duplicate key error
       if (error.code === 11000) {
-        return res
-          .status(500)
-          .json({ message: "User already has an invite" });
+        return res.status(500).json({ message: "User already has an invite" });
       }
       res.status(500).json({ error: "Server Error. Could not invite user." });
     }
@@ -185,7 +189,9 @@ class GroupController {
       res.status(200).json(invites);
     } catch (error) {
       console.error("Error fetching group's invites:", error);
-      res.status(500).json({ message: "Server Error. Could not fetch invites." });
+      res
+        .status(500)
+        .json({ message: "Server Error. Could not fetch invites." });
     }
   }
 
@@ -212,7 +218,9 @@ class GroupController {
       res.status(200).json({ message: `Invite was ${status}`, invite });
     } catch (error) {
       console.error("Error rejecting the invite:", error);
-      res.status(500).json({ message: "Server Error. Could not reject invite." });
+      res
+        .status(500)
+        .json({ message: "Server Error. Could not reject invite." });
     }
   }
 
@@ -249,7 +257,9 @@ class GroupController {
       res.status(200).json({ message: "User was added to the group", group });
     } catch (error) {
       console.error("Error accepting the invite:", error);
-      res.status(500).json({ message: "Server Error. Could not accept invite." });
+      res
+        .status(500)
+        .json({ message: "Server Error. Could not accept invite." });
     }
   }
 
@@ -257,32 +267,44 @@ class GroupController {
   static async removeFromGroup(req, res) {
     try {
       const groupId = req.params.id;
-      const { userId } = req.body;
+      const { userId: removeUserId } = req.body;
+      const userId = req.userId;
 
-      const group = await Group.findByIdAndUpdate(
-        groupId,
-        {
-          $pullAll: { members: [userId] },
-        },
-        { new: true }
-      );
+      const group = await Group.findById(groupId);
 
       if (!group) {
         return res.status(404).json({ message: "Group not found" });
       }
 
-      await User.findByIdAndUpdate(
-        userId,
-        {
-          $pullAll: { groups: [groupId] },
-        },
-        { new: true }
-      );
+      const isOwner = group.owner.toString() === userId;
+      const isRemoveSelf = userId === removeUserId;
+
+      if (!isOwner && !isRemoveSelf) {
+        // is not owner and not removing self
+        return res.status(401).json({ message: "Not group owner" });
+      } else if (isOwner && isRemoveSelf) {
+        // is owner and removing self aka owner leaving group -> groups is disbanded
+        await Group.findOneAndDelete({ _id: groupId });
+
+        return res.status(200).json({ message: "Group deleted with success" });
+      } else {
+        // is owner and removing another user or is not owner and removing self
+        group.members.pull(removeUserId);
+        await group.save();
+
+        await User.findByIdAndUpdate(
+          removeUserId,
+          { $pull: { groups: groupId } },
+          { new: true }
+        );
+      }
 
       res.status(200).json({ message: "User removed from group", group });
     } catch (error) {
       console.error("Error removing user from group:", error);
-      res.status(500).json({ message: "Server Error. Could not remove user from group." });
+      res
+        .status(500)
+        .json({ message: "Server Error. Could not remove user from group." });
     }
   }
 }
