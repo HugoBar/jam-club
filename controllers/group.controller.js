@@ -149,7 +149,7 @@ class GroupController {
       const invitee = await User.findOne({ username: username });
 
       // Check if the invitee is already a member of the group
-      const isMember = await isMemberOfGroup(invitee, groupId);
+      const isMember = await isMemberOfGroup(invitee._id, groupId);
       if (isMember) {
         return res
           .status(500)
