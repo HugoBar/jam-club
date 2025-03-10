@@ -16,6 +16,15 @@ class AuthController {
 
       // Respond with a success message if the user is created successfully
       res.status(201).json({ message: "User registered successfully" });
+
+      const referral = req.referral;
+      referral
+        .updateOne({
+          $inc: { used: 1 },
+          $push: {
+            claimedBy: user._id,
+          },
+        }).exec();
     } catch (error) {
       // Log any error and send a failure response
       console.error("Error creating user:", error);
@@ -25,8 +34,7 @@ class AuthController {
         const keys = Object.keys(error.keyValue);
         if (keys.includes("username")) {
           return res.status(500).json({ error: "Username is already taken" });
-        }
-        else if (keys.includes("nickname")) {
+        } else if (keys.includes("nickname")) {
           return res.status(500).json({ error: "Nickname is already taken" });
         }
       }
@@ -54,14 +62,21 @@ class AuthController {
         return res.status(401).json({ error: "Authentication failed" });
       }
 
-      const accessToken = jwt.sign({ userId: user.id }, process.env.JWT_SECRET_KEY, {
-        expiresIn: "15m", // Access token expires in 15 minutes
-      });
+      const accessToken = jwt.sign(
+        { userId: user.id },
+        process.env.JWT_SECRET_KEY,
+        {
+          expiresIn: "15m", // Access token expires in 15 minutes
+        }
+      );
 
-      const refreshToken = jwt.sign({ userId: user.id }, process.env.JWT_REFRESH_SECRET_KEY, {
-        expiresIn: "7d", // Refresh token expires in 7 days
-      });
-
+      const refreshToken = jwt.sign(
+        { userId: user.id },
+        process.env.JWT_REFRESH_SECRET_KEY,
+        {
+          expiresIn: "7d", // Refresh token expires in 7 days
+        }
+      );
 
       // Set refresh token in HttpOnly cookie
       res.cookie("refreshToken", refreshToken, {
@@ -71,7 +86,9 @@ class AuthController {
       });
 
       // Respond with the generated token
-      res.status(200).json({ accessToken, userId: user.id , message: "Login successful" });
+      res
+        .status(200)
+        .json({ accessToken, userId: user.id, message: "Login successful" });
     } catch (error) {
       // Send a failure response if login fails
       res.status(500).json({ error: "Login failed" });
@@ -86,10 +103,17 @@ class AuthController {
     }
 
     try {
-      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET_KEY);
-      const accessToken = jwt.sign({ userId: decoded.userId }, process.env.JWT_SECRET_KEY, {
-        expiresIn: "15m",
-      });
+      const decoded = jwt.verify(
+        refreshToken,
+        process.env.JWT_REFRESH_SECRET_KEY
+      );
+      const accessToken = jwt.sign(
+        { userId: decoded.userId },
+        process.env.JWT_SECRET_KEY,
+        {
+          expiresIn: "15m",
+        }
+      );
 
       res.status(200).json({ accessToken });
     } catch (error) {
