@@ -24,6 +24,7 @@ const authRouter = require("./routes/auth.router");
 const usersRouter = require("./routes/users.router");
 const trackRouter = require("./routes/track.router");
 const groupRouter = require("./routes/group.router");
+const referralRouter = require("./routes/referral.router");
 
 // Define the routes for the application
 // Authentication
@@ -37,6 +38,9 @@ app.use("/track", trackRouter);
 
 // Groups
 app.use("/group", groupRouter);
+
+// Referrals
+app.use("/referral", referralRouter);
 
 // Handle requests to undefined endpoints
 app.use((req, res) => {
