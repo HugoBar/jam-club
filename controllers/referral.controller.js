@@ -3,8 +3,7 @@ const Referral = require("../models/referral.model");
 class ReferralController {
   static async addReferral(req, res) {
     try {
-      const { code, maxUse } = req.body;
-      const userId = req.userId;
+      const { code, maxUse, userId } = req.body;
 
       const referral = new Referral({
         code,
