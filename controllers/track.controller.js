@@ -1,8 +1,9 @@
 const Track = require("../models/track.model");
 const { fetchTrackDetails } = require("../helpers/api/fetchTrackData.helper");
-const { mapTrackDetails } = require("../helpers/track/mapTrackDetails.helper");
+const { mapTrackDetails, mapTracksDetails } = require("../helpers/track/mapTrackDetails.helper");
 
 const { getDailyTrack } = require("../helpers/track/track.helper")
+const { spotifySearchTrack } = require("../helpers/api/spotifySearchTrack.helper");
 
 class TrackController {
   // Create a new track
@@ -64,6 +65,30 @@ class TrackController {
       res
         .status(500)
         .json({ message: "Server error. Could not fetch tracks." });
+    }
+  }
+
+  // Search for a track using the Spotify API
+  static async searchTrack(req, res) {
+    const { keyword, type, limit, offset } = req.query;
+
+    try {
+      const searchResults = await spotifySearchTrack({keyword, type, limit, offset, token: req.spotifyToken})
+
+      const mappedResults = searchResults.tracks.items.map((track) => {
+        return {
+          id: track.id,
+          name: track.name,
+          artists: track.artists.map((artist) => artist.name),
+          externalUrls: track.external_urls,
+          cover: track.album.images
+        };
+      });
+      
+      res.status(200).json(mappedResults);
+    } catch (error) {
+      console.error("Error searching track:", error);
+      res.status(500).json({ message: "Server error. Could not search track." });
     }
   }
 }

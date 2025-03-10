@@ -11,4 +11,7 @@ router.post("/", verifyToken, TrackController.setDailyTrack);
 router.get("/", verifyToken, verifySpotifyToken, TrackController.getDailyTrack);
 router.get("/all", verifyToken, TrackController.getAllTracks);
 
+// Search track
+router.get("/search", verifyToken, verifySpotifyToken, TrackController.searchTrack);
+
 module.exports = router;
