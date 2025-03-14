@@ -3,8 +3,10 @@ const mapTrackDetails = (track, details) => {
     ...track,
     name: details.name,
     artists: details.artists.map((artist) => artist.name),
-    externalUrls: details.external_urls,
-    cover: details.album.images
+    externalUrls: {
+      spotify: { url: details.external_urls.spotify, uri: details.uri },
+    },
+    cover: details.album.images,
   };
 };
 
