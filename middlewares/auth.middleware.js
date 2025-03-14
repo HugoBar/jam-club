@@ -9,7 +9,8 @@ async function verifyToken(req, res, next) {
   if (authHeader) {
     token = authHeader.split(' ')[1];
   }
-  
+
+  console.log(token)
   // If no token is provided, respond with a 401 Unauthorized status
   if (!token) {
     return res.status(401).json({ error: "Access token not provided" });
