@@ -32,7 +32,7 @@ recommendationSchema.statics.findTodayRecommendationsByUser = function (groupId,
   const endOfDay = new Date();
   endOfDay.setHours(23, 59, 59, 999);
 
-  return this.find({
+  return this.findOne({
     groupId: groupId, 
     userId: userId,
     createdAt: { $gte: startOfDay, $lte: endOfDay }, 

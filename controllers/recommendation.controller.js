@@ -1,6 +1,6 @@
 const Recommendation = require("../models/recommendation.model");
-const { fetchTracksDetails } = require("../helpers/api/fetchTrackData.helper");
-const { mapTracksDetails } = require("../helpers/track/mapTrackDetails.helper");
+const { fetchTrackDetails, fetchTracksDetails } = require("../helpers/api/fetchTrackData.helper");
+const { mapTrackDetails, mapTracksDetails } = require("../helpers/track/mapTrackDetails.helper");
 
 const { hasRecommendation } = require("../helpers/recommendation/recommendation.helper")
 
@@ -72,19 +72,20 @@ class RecommendationController {
       const userId = req.userId;
 
       // Find today's recommendations for the group
-      const recommendations = await Recommendation.findTodayRecommendationsByUser(
+      const recommendation = await Recommendation.findTodayRecommendationsByUser(
         groupId, userId
       ).lean();
 
-      // Extract the track IDs from the recommendations
-      const ids = recommendations.map(({ spotifyId }) => spotifyId);
+      if (!recommendation) {
+        return res.status(200).json("");
+      }
 
       // Fetch detailed track information using Spotify API
-      const details = await fetchTracksDetails(ids.join(","), req.spotifyToken);
+      const details = await fetchTrackDetails(recommendation.spotifyId, req.spotifyToken);
 
-      const recommendationsDetails = mapTracksDetails(recommendations, details);
+      const recommendationDetails = mapTrackDetails(recommendation, details);
 
-      res.status(200).json(recommendationsDetails[0]);
+      res.status(200).json(recommendationDetails);
     } catch (error) {
       // Log any errors and respond with a 500 error if something goes wrong
       console.error("Error fetching recommendations:", error);
