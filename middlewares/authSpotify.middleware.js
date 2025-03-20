@@ -9,7 +9,6 @@ async function verifySpotifyToken(req, res, next) {
     // If a cached token exists, use it
     if (cachedToken) {
       req.spotifyToken = cachedToken; // Attach the token to the request object
-      console.log("Spotify token fetched with success");
     } else {
       // If no cached token, fetch a new one from Spotify API
       const response = await requestSpotifyToken();
@@ -27,8 +26,6 @@ async function verifySpotifyToken(req, res, next) {
 
       // Cache the new token for future requests
       cache.set("spotifyToken", spotifyToken, expiresIn);
-
-      console.log("Spotify token fetched with success");
     }
 
     next();
