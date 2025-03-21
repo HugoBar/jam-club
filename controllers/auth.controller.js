@@ -79,12 +79,15 @@ class AuthController {
       );
 
       console.log("refreshToken controller", refreshToken);
+      const expirationDate = new Date();
+      expirationDate.setDate(expirationDate.getDate() + 7);
+
       // Set refresh token in HttpOnly cookie
       res.cookie("refreshToken", refreshToken, {
         httpOnly: true,
         secure: process.env.NODE_ENV === "production",
-        sameSite: "None",
-        maxAge: 1000 * 60 * 60 * 24 * 7, // 7 days
+        sameSite: "Strict",
+        expires: expirationDate, // 7 days
       });
 
       // Respond with the generated token
