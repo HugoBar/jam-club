@@ -86,8 +86,6 @@ class AuthController {
         sameSite: "Strict",
       });
 
-      console.log("refreshToken cookie", res.cookies.refreshToken);
-
       // Respond with the generated token
       res
         .status(200)
