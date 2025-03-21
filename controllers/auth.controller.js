@@ -63,10 +63,10 @@ class AuthController {
       }
 
       const accessToken = jwt.sign(
-        { userId: user.id, iat: Math.floor(Date.now() / 1000) },
+        { userId: user.id },
         process.env.JWT_SECRET_KEY,
         {
-          expiresIn: "10s", // Access token expires in 15 minutes
+          expiresIn: "15m", // Access token expires in 15 minutes
         }
       );
 
