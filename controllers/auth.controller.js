@@ -66,7 +66,7 @@ class AuthController {
         { userId: user.id, iat: Math.floor(Date.now() / 1000) },
         process.env.JWT_SECRET_KEY,
         {
-          expiresIn: "10s", // Access token expires in 15 minutes
+          expiresIn: "15m", // Access token expires in 15 minutes
         }
       );
 

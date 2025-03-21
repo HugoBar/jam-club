@@ -37,7 +37,7 @@ async function verifyToken(req, res, next) {
         { userId: decoded.userId, iat: Math.floor(Date.now() / 1000) },
         process.env.JWT_SECRET_KEY,
         {
-          expiresIn: "10s",
+          expiresIn: "15m",
         }
       );
 
