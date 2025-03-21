@@ -24,16 +24,16 @@ async function verifyToken(req, res, next) {
   } catch (error) {
     // If access token verification fails, check the refresh token
     const refreshToken = req.cookies.refreshToken;
-
     if (!refreshToken) {
       return res.status(401).json({ error: "Refresh token not provided" });
     }
 
+    console.log("refreshToken", refreshToken)
     try {
       // Verify the refresh token
       const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET_KEY);
-      const newAccessToken = jwt.sign({ userId: decoded.userId }, process.env.JWT_SECRET_KEY, {
-        expiresIn: "15m",
+      const newAccessToken = jwt.sign({ userId: decoded.userId, iat: Math.floor(Date.now() / 1000) }, process.env.JWT_SECRET_KEY, {
+        expiresIn: "10s", 
       });
 
       // Set the new access token in the response header
