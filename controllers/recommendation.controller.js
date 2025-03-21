@@ -13,7 +13,7 @@ class RecommendationController {
       const userId = req.userId;
   
       let recommendation = await hasRecommendation(userId, groupId);
-      console.log(recommendation)
+
       if (recommendation.length > 0) {
         return res.status(500).json({ error: "User already has a recommendation for this group" });
       }

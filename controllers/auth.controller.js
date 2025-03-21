@@ -78,7 +78,6 @@ class AuthController {
         }
       );
 
-      console.log("refreshToken controller", refreshToken);
       const expirationDate = new Date();
       expirationDate.setDate(expirationDate.getDate() + 7);
 
