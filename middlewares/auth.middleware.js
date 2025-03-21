@@ -5,6 +5,7 @@ async function verifyToken(req, res, next) {
   // Retrieve the token from the Authorization header
   const authHeader = req.headers.authorization;
   let token;
+  console.log("refreshToken first", req.cookies.refreshToken)
 
   if (authHeader) {
     token = authHeader.split(' ')[1];
@@ -22,6 +23,8 @@ async function verifyToken(req, res, next) {
     req.userId = decoded.userId;
     return next();
   } catch (error) {
+  console.log("refreshToken second", req.cookies.refreshToken)
+
     // If access token verification fails, check the refresh token
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
@@ -43,6 +46,7 @@ async function verifyToken(req, res, next) {
       req.userId = decoded.userId;
       return next();
     } catch (error) {
+      console.log("error", error)
       return res.status(403).json({ error: "Invalid refresh token" });
     }
   }
