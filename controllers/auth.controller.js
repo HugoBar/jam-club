@@ -85,8 +85,8 @@ class AuthController {
         secure: process.env.NODE_ENV === "production",
         sameSite: "Strict",
       });
-      
-      console.log("refreshToken cookie", req.cookies.refreshToken);
+
+      console.log("refreshToken cookie", res.cookies.refreshToken);
 
       // Respond with the generated token
       res
