@@ -5,12 +5,13 @@ async function verifyToken(req, res, next) {
   // Retrieve the token from the Authorization header
   const authHeader = req.headers.authorization;
   let token;
+  console.log("Has refresh token:", refreshToken);
 
   if (authHeader) {
-    token = authHeader.split(' ')[1];
+    token = authHeader.split(" ")[1];
   }
 
-  console.log(token)
+  console.log(token);
   // If no token is provided, respond with a 401 Unauthorized status
   if (!token) {
     return res.status(401).json({ error: "Access token not provided" });
@@ -24,20 +25,30 @@ async function verifyToken(req, res, next) {
   } catch (error) {
     // If access token verification fails, check the refresh token
     const refreshToken = req.cookies.refreshToken;
+    console.log("Verifying refresh token:", refreshToken);
+    console.log("Using secret key:", process.env.JWT_REFRESH_SECRET_KEY);
+
     if (!refreshToken) {
       return res.status(401).json({ error: "Refresh token not provided" });
     }
 
-    console.log("refreshToken", refreshToken)
+    console.log("refreshToken", refreshToken);
     try {
       // Verify the refresh token
-      const decoded = jwt.verify(refreshToken, process.env.JWT_REFRESH_SECRET_KEY);
-      const newAccessToken = jwt.sign({ userId: decoded.userId, iat: Math.floor(Date.now() / 1000) }, process.env.JWT_SECRET_KEY, {
-        expiresIn: "10s", 
-      });
+      const decoded = jwt.verify(
+        refreshToken,
+        process.env.JWT_REFRESH_SECRET_KEY
+      );
+      const newAccessToken = jwt.sign(
+        { userId: decoded.userId, iat: Math.floor(Date.now() / 1000) },
+        process.env.JWT_SECRET_KEY,
+        {
+          expiresIn: "10s",
+        }
+      );
 
       // Set the new access token in the response header
-      res.setHeader('new-access-token', `Bearer ${newAccessToken}`);
+      res.setHeader("new-access-token", `Bearer ${newAccessToken}`);
 
       // Attach the userId to the request object
       req.userId = decoded.userId;
