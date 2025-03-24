@@ -1,12 +1,17 @@
 const bcrypt = require("bcrypt"); // for hashing passwords
 const User = require("../models/user.model");
 const jwt = require("jsonwebtoken"); // for generating authentication tokens
+const { validateUsername, validatePassword, validateNickname } = require("../helpers/auth/validateFields");
 
 class AuthController {
   // Static method to handle user registration
   static async register(req, res) {
     try {
       const { username, password, nickname } = req.body;
+
+      validateUsername(username);
+      validatePassword(password);
+      validateNickname(nickname);
 
       const hashedPassword = await bcrypt.hash(password, 10);
 
@@ -38,8 +43,8 @@ class AuthController {
           return res.status(500).json({ error: "Nickname is already taken" });
         }
       }
-
-      res.status(500).json({ error: "Registration failed" });
+      
+      res.status(500).json({ error: error.message || "Registration failed" });
     }
   }
 
