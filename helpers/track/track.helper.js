@@ -8,8 +8,20 @@ const getDailyTrack = async () => {
   endOfDay.setHours(23, 59, 59, 999);
 
   return Track.findOne({
-    createdAt: { $gte: startOfDay, $lte: endOfDay },
+    date: { $gte: startOfDay, $lte: endOfDay },
   });
 };
 
-module.exports = { getDailyTrack };
+const getDailyTrackByDate = async (date) => {
+  const startOfDay = new Date(date);
+  startOfDay.setHours(0, 0, 0, 0);
+
+  const endOfDay = new Date(date);
+  endOfDay.setHours(23, 59, 59, 999);
+
+  return Track.findOne({
+    date: { $gte: startOfDay, $lte: endOfDay },
+  });
+};
+
+module.exports = { getDailyTrack, getDailyTrackByDate };

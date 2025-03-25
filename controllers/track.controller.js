@@ -1,22 +1,33 @@
 const Track = require("../models/track.model");
 const { fetchTrackDetails } = require("../helpers/api/fetchTrackData.helper");
 const { mapTrackDetails, mapTracksDetails } = require("../helpers/track/mapTrackDetails.helper");
-
-const { getDailyTrack } = require("../helpers/track/track.helper")
+const { getDailyTrack, getDailyTrackByDate } = require("../helpers/track/track.helper")
+const { isValidDate } = require("../helpers/date.helper");
 const { spotifySearchTrack } = require("../helpers/api/spotifySearchTrack.helper");
 
 class TrackController {
   // Create a new track
   static async setDailyTrack(req, res) {
     try {
-      const { trackId } = req.body;
+      const { trackId, day, month, year } = req.body;
+      let date
 
-      let track = await getDailyTrack()
+      if (isValidDate(year, month, day) ) {
+        date = new Date(year, month - 1, day);
+      }
+      else if (year === undefined && month === undefined && day === undefined) {
+        date = new Date();
+      }
+      else {
+        return res.status(400).json({ error: "Invalid date." });
+      }
+
+      let track = await getDailyTrackByDate(date);
       if (track) {
         return res.status(500).json({ error: "Daily track already exists." });
       }
 
-      track = new Track({ spotifyId: trackId });
+      track = new Track({ spotifyId: trackId, date });
       await track.save();
   
       res.status(201).json({ message: "Track created successfully", track });
