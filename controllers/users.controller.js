@@ -36,9 +36,13 @@ class UsersController {
   static async updateUserInfo(req, res) {
     try {
       const userId = req.params.id;
-      const fields = req.body;
+      const { fields } = req.body;
 
-      const user = await User.findOneAndUpdate({ _id: userId }, fields);
+      const user = await User.findOneAndUpdate({ _id: userId }, fields, {
+        new: true
+      });
+
+      user.save();
 
       res.status(200).json(user);
     } catch (error) {
