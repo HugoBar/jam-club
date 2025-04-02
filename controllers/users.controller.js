@@ -91,6 +91,41 @@ class UsersController {
     }
   }
 
+  static async updateUserPasswordByUsername(req, res) {
+    try {
+      const { username, currentPassword, newPassword } = req.body;
+      console.log(currentPassword)
+      console.log(newPassword)
+      const user = await User.findOne({ username });
+      console.log(user.password)
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const match = await bcrypt.compare(currentPassword, user.password);
+      if (!match) {
+        return res
+          .status(400)
+          .json({ message: "Password does not match" });
+      }
+
+      try {
+        validatePassword(newPassword);
+      } catch (validationError) {
+        return res.status(400).json({ message: validationError.message });
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await user.updateOne({ password: hashedPassword });
+
+      res.status(200).json({ message: "Password updated successfully" });
+    } catch (error) {
+      console.error("Error updating user password:", error);
+      return res
+        .status(500)
+        .json({ message: error.message || "Internal Server Error" });
+    }
+  }
 
   // Fetch invites sent by the user
   static async getUserInvitesSent(req, res) {
