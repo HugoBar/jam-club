@@ -8,6 +8,7 @@ const isUserSelf = require("../middlewares/isUserSelf.middleware");
 router.get("/all", verifyToken, UsersController.getUsers);
 router.get("/:id", verifyToken, isUserSelf, UsersController.getUserById);
 router.patch("/:id", verifyToken, isUserSelf, UsersController.updateUserInfo)
+router.patch("/:id/password", verifyToken, isUserSelf, UsersController.updateUserPasswordById)
 
 // User Invites
 router.get("/:id/invites/sent", verifyToken, isUserSelf, UsersController.getUserInvitesSent);

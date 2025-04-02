@@ -1,5 +1,7 @@
 const User = require("../models/user.model");
 const Invite = require("../models/invite.model");
+const bcrypt = require("bcrypt");
+const { validatePassword } = require("../helpers/auth/validateFields");
 
 class UsersController {
   // Fetch user by id
@@ -38,8 +40,10 @@ class UsersController {
       const userId = req.params.id;
       const { fields } = req.body;
 
+      delete fields.password;
+
       const user = await User.findOneAndUpdate({ _id: userId }, fields, {
-        new: true
+        new: true,
       });
 
       user.save();
@@ -50,6 +54,43 @@ class UsersController {
       res.status(500).json({ message: "Internal Server Error" });
     }
   }
+
+  // Update user password
+  static async updateUserPasswordById(req, res) {
+    try {
+      const userId = req.params.id;
+      const { currentPassword, newPassword } = req.body;
+
+      const user = await User.findById(userId);
+      if (!user) {
+        return res.status(404).json({ message: "User not found" });
+      }
+
+      const match = await bcrypt.compare(currentPassword, user.password);
+      if (!match) {
+        return res
+          .status(400)
+          .json({ message: "Password does not match" });
+      }
+
+      try {
+        validatePassword(newPassword);
+      } catch (validationError) {
+        return res.status(400).json({ message: validationError.message });
+      }
+
+      const hashedPassword = await bcrypt.hash(newPassword, 10);
+      await user.updateOne({ password: hashedPassword });
+
+      res.status(200).json({ message: "Password updated successfully" });
+    } catch (error) {
+      console.error("Error updating user password:", error);
+      return res
+        .status(500)
+        .json({ message: error.message || "Internal Server Error" });
+    }
+  }
+
 
   // Fetch invites sent by the user
   static async getUserInvitesSent(req, res) {
