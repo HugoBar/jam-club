@@ -3,9 +3,10 @@ const router = express.Router();
 const TrackController = require("../controllers/track.controller");
 const verifyToken = require("../middlewares/auth.middleware");
 const verifySpotifyToken = require("../middlewares/authSpotify.middleware");
+const isAdmin = require("../middlewares/isAdmin.middleware");
 
 // Create track
-router.post("/", verifyToken, TrackController.setDailyTrack);
+router.post("/", verifyToken, isAdmin, TrackController.setDailyTrack);
 
 // Get track
 router.get("/", verifyToken, verifySpotifyToken, TrackController.getDailyTrack);
