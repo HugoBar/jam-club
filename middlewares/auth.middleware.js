@@ -12,6 +12,7 @@ async function verifyToken(req, res, next) {
 
   // If no token is provided, respond with a 401 Unauthorized status
   if (!token) {
+    console.error("No access token!", token)
     return res.status(401).json({ error: "Access token not provided" });
   }
 
@@ -21,9 +22,12 @@ async function verifyToken(req, res, next) {
     req.userId = decoded.userId;
     return next();
   } catch (error) {
+    console.error("Invalid access token")
+
     // If access token verification fails, check the refresh token
     const refreshToken = req.cookies.refreshToken;
     if (!refreshToken) {
+      console.error("No refresh token provided", refreshToken)
       return res.status(401).json({ error: "Refresh token not provided" });
     }
 
@@ -40,14 +44,19 @@ async function verifyToken(req, res, next) {
           expiresIn: "15m",
         }
       );
-
+      
       // Set the new access token in the response header
       res.setHeader("new-access-token", `Bearer ${newAccessToken}`);
 
+      console.log("new access token", newAccessToken)
+      console.log(res.headers)
+      
       // Attach the userId to the request object
       req.userId = decoded.userId;
       return next();
     } catch (error) {
+      console.error("Invalid refresh token")
+
       return res.status(403).json({ error: "Invalid refresh token" });
     }
   }
